@@ -1,0 +1,30 @@
+<ion-view view-title="Simulator">
+  <ion-nav-buttons class="has-header" side="right">
+  </ion-nav-buttons>
+  <ion-content class="padding"  ng-controller="SimCtrl">  
+
+    <div class="item item-text-wrap charter">        
+       <canvas 
+        id="bar" 
+        class="chart chart-line"
+        chart-data="datum" 
+        chart-series="series"
+        chart-colors="colors"
+        chart-options="options">        
+      </canvas>
+    </div>
+
+	  <ion-list>
+      <ion-item 
+        class="item-remove-animate item-avatar item-icon-right" 
+        ng-repeat="design in designs" 
+        type="item-text-wrap" >	        
+        <ion-toggle ng-Model="design.sim" toggle-class="toggle-calm" ng-change="toggleSim(design)">
+        	<h2>{{design.name}} : {{design.nod}}x {{design.driver.brand}} - {{design.driver.model}}</h2>
+          <p>{{design.type}} : {{design.vb}}l : {{design.fb}}Hz </p>
+        </ion-toggle>   
+      </ion-item>
+    </ion-list>
+
+  </ion-content> 
+</ion-view>

@@ -1,0 +1,92 @@
+<ion-view view-title="Driver Designer">
+	<ion-nav-buttons class="has-header" side="right">
+    <button class="button button-icon icon ion-ios-compose-outline" ng-click="modal.show()"></button>
+  </ion-nav-buttons>
+  <ion-content>
+    <ion-list>
+      <ion-item 
+        class="item-remove-animate item-avatar item-icon-right" 
+        ng-repeat="driver in drivers" 
+        type="item-text-wrap" 
+        href="#/tab/driver/{{driver.id}}">
+        <h2>{{driver.brand}} - {{driver.model}}</h2>
+        <p>{{driver.size}}"</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>        
+        <ion-option-button class="button-assertive" ng-click="remove(driver)">
+          Delete
+        </ion-option-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+
+  <script id="templates/modalDriver.html" type="text/ng-template">
+    <ion-modal-view>
+      <ion-header-bar class="bar bar-header bar-dark">
+        <h1 class="title">New Driver</h1>
+        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+      </ion-header-bar>
+      <ion-content class="padding">
+        <div class="list">          
+          <label class="item item-input">
+          <span class="input-label">Brand</span>
+          <input type="text" ng-model="newDriver.brand" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Model</span>
+          <input type="text" ng-model="newDriver.model" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Fs</span>
+          <input type="text" ng-model="newDriver.fs" required>
+          <span class="fade-label">Hz</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Re</span>
+          <input type="text" ng-model="newDriver.re" required>
+          <span class="fade-label">Ohm</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Qms</span>
+          <input type="text" ng-model="newDriver.qms" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Qes</span>
+          <input type="text" ng-model="newDriver.qes" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Size</span>
+          <input type="text" ng-model="newDriver.size" required>
+          <span class="fade-label">in</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Sd</span>
+          <input type="text" ng-model="newDriver.sd">
+          <span class="fade-label">cm<sup>2</sup></span>
+        </label>        
+        <label class="item item-input">
+          <span class="input-label">Vas</span>
+          <input type="text" ng-model="newDriver.vas" required>
+          <span class="fade-label">liters</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Xmax</span>
+          <input type="text" ng-model="newDriver.xmax" required>
+          <span class="fade-label">mm</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Le</span>
+          <input type="text" ng-model="newDriver.le" required>
+          <span class="fade-label">mH</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Rms</span>
+          <input type="text" ng-model="newDriver.rms" required>
+          <span class="fade-label">watts</span>
+        </label>              
+          <button class="button button-full button-dark" ng-click="createDriver(newDriver)">Add Driver</button>
+        </div>
+      </ion-content>
+    </ion-modal-view>
+  </script>
+
+</ion-view>

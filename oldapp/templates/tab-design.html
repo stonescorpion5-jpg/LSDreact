@@ -1,0 +1,41 @@
+<ion-view view-title="Box Designer">
+  <ion-nav-buttons class="has-header" side="right">
+    <button class="button button-icon icon ion-ios-compose-outline" ng-click="modal.show()"></button>
+  </ion-nav-buttons>
+  <ion-content>
+    <ion-list ng-controller="DesignCtrl">
+
+      <ion-item 
+        class="item-remove-animate item-avatar item-icon-right" 
+        ng-repeat="design in designs" 
+        type="item-text-wrap" 
+        ng-href="#/tab/design/{{design.id}}">        
+          <h2>{{design.name}} : {{design.nod}}x {{design.driver.brand}} - {{design.driver.model}}</h2>
+          <p>{{design.type}} : {{design.vb}}l : {{design.fb}}Hz </p>
+        <i class="icon ion-chevron-right icon-accessory"></i>        
+        <ion-option-button class="button-assertive" ng-click="remove(design)">
+          Delete 
+        </ion-option-button> 
+      </ion-item>
+    </ion-list>
+  </ion-content>
+
+  <script id="templates/modalDesign.html" type="text/ng-template">
+    <ion-modal-view>
+      <ion-header-bar class="bar bar-header bar-dark">
+        <h1 class="title">New Design</h1>
+        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+      </ion-header-bar>
+      <ion-content class="padding">
+        <div class="list">          
+          <label class="item item-input">
+            <span class="input-label">Design Name</span>
+            <input ng-model="newDesign.name" type="text">
+          </label>   
+          <button class="button button-full button-dark" ng-click="createDesign(newDesign)">Create</button>
+        </div>
+      </ion-content>
+    </ion-modal-view>
+  </script>
+
+</ion-view>

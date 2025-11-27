@@ -1,0 +1,187 @@
+<ion-view view-title="DESIGN > {{design.name}} : {{design.driver.brand}} : {{design.driver.model}}: {{design.type}} : {{design.vb}}l : {{design.fb}}hz">
+  <ion-nav-buttons class="has-header" side="right">
+    <button class="button" ng-click="ShowMetric()" ng-show="!settings[0].metric"> US </button>
+    <button class="button" ng-click="ShowUS()" ng-show="settings[0].metric">Metric</button>
+  </ion-nav-buttons>
+  </ion-nav-buttons>
+  <ion-content class="padding">    
+    <form ng-submit = "editDesign(design)">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Design Name</span>
+          <input type="text" ng-model="design.name" required>
+        </label>
+        <label class="item item-input item-select">
+          <span class="input-label">Driver</span>
+          <select 
+            ng-model="design.driverID"
+            ng-options="driver.id as driver.brandModel group by driver.size for driver in drivers | orderBy : 'size' : false"
+            ng-change="addDriver(design)">  
+          </select>
+        </label>
+      	<label class="item item-select item-input">
+          <div class="input-label">Design Type</div>
+          <select 
+            ng-model="design.type" 
+            ng-options="type.name as type.name for type in types"> 
+          </select>
+      	</label>        
+        <label class="item item-input">
+          <span class="input-label">Number of Drivers</span>
+          <!--<input type="tel" name="volume" ng-model="design.nod" ng-change="calPort(design)">-->
+        </label>        
+        <div class="button-bar">
+          <a class="button" 
+            ng-repeat="item in driverSelect" 
+            ng-click="design.nod = item"
+            ng-class="{'active' : item === design.nod}" 
+            ng-model="design.nod">
+              {{item}}
+          </a>
+        </div>
+        <label class="item item-input">
+          <span class="input-label">Number of Ports</span>
+        </label>
+        <div class="button-bar">
+          <a class="button" 
+            ng-repeat="item in portSelect" 
+            ng-click="design.np = item"
+            ng-class="{'active' : item === design.np}" 
+            ng-model="design.np">
+              {{item}}
+          </a>
+        </div>
+
+        <h5>Recomended Net Air Volume {{design.driver.recPortedVb * design.nod}} liters</h5>
+
+      	<label class="item item-input">
+          <span class="input-label">Vb</span>
+        	<input type="number" ng-model="design.vb" ng-change="calPort(design)" required>
+          <span class="fade-label">liters</span>
+      	</label>
+        <h5>Recomended Fb {{design.driver.recPortedFb}} Hertz</h5>
+        <label class="item item-input">
+          <span class="input-label">Fb</span>
+          <input type="text" ng-model="design.fb" ng-change="calPort(design)" required>
+          <span class="fade-label">Hz</span>
+        </label>
+        
+        <h5 ng-show="!settings[0].metric">Recomended Min Port Diameter {{design.dmin.rec.in}}in</h5>
+
+        <h5 ng-show="settings[0].metric">Recomended Min Port Diameter {{design.dmin.rec.cm}}cm</h5>
+
+        <label class="item item-input" ng-show="settings[0].metric">
+          <span class="input-label">Port Diameter</span>
+          <input type="text" ng-model="design.dmin.actual.cm" ng-change="PortToIn(design)" required>
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input" ng-show="!settings[0].metric">
+          <span class="input-label">Port Diameter</span>
+          <input type="text" ng-model="design.dmin.actual.in" ng-change="PortToCm(design)" required>
+          <span class="fade-label">in</span>
+        </label>
+
+        <!--<h5>Flat Port Calculation : Area of Port {{design.port.area.cm}}cm<sup>2</sup> = {{design.port.area.in}}in<sup>2</sup></h5>
+        <label class="item item-input">
+          <span class="input-label">Port Width</span>
+          <input type="text" ng-model="design.port.width.cm" ng-change="PortToIn(design)" required>
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Port Height</span>
+          <input type="text" ng-model="design.port.height.cm" ng-change="PortArea(design)">
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Port Width</span>
+          <input type="text" ng-model="design.port.width.in" ng-change="PortToCm(design)" required>
+          <span class="fade-label">in</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Port Height</span>
+          <input type="text" ng-model="design.port.height.in" ng-change="PortAreaIn(design)">
+          <span class="fade-label">in</span>
+        </label>-->
+
+        <label class="item item-input" ng-show="settings[0].metric">
+          <span class="input-label">Port Length</span>
+          <input type="text" ng-model="design.lv.cm" ng-change="PortToIn(design)" readonly>
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input" ng-show="!settings[0].metric">
+          <span class="input-label">Port Length</span>
+          <input type="text" ng-model="design.lv.in" ng-change="PortToCm(design)" readonly>
+          <span class="fade-label">in</span>
+        </label>
+
+        <h5>Fine Displacent Details</h5>
+        <label class="item item-input" ng-show="settings[0].metric">
+          <span class="input-label">Outer Port Diameter</span>
+          <input type="text" ng-model="design.dmin.outer.cm" ng-change="BoxToIn(design)">
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input" ng-show="!settings[0].metric">
+          <span class="input-label">Outer Port Diameter</span>
+          <input type="text" ng-model="design.dmin.outer.in" ng-change="BoxToCm(design)">
+          <span class="fade-label">in</span>
+        </label>
+        <h5></h5>
+        <label class="item item-input" ng-show="settings[0].metric">
+          <span class="input-label">Internal Bracing</span>
+          <input type="text" ng-model="design.bracing.cm" ng-change="BoxToIn(design)">
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input" ng-show="!settings[0].metric">
+          <span class="input-label">Internal Bracing</span>
+          <input type="text" ng-model="design.bracing.in" ng-change="BoxToCm(design)">
+          <span class="fade-label">in</span>
+        </label>
+
+        <h5>Box Dimensions</h5>
+        <label class="item item-input" ng-show="settings[0].metric">
+          <span class="input-label">Width</span>
+          <input type="text" ng-model="design.box.width.cm" ng-change="BoxToIn(design)">
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input" ng-show="!settings[0].metric">
+          <span class="input-label">Width</span>
+          <input type="text" ng-model="design.box.width.in" ng-change="BoxToCm(design)">
+          <span class="fade-label">in</span>
+        </label>
+        <label class="item item-input" ng-show="settings[0].metric">
+          <span class="input-label">Height</span>
+          <input type="text" ng-model="design.box.height.cm" ng-change="BoxToIn(design)">
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input" ng-show="!settings[0].metric">
+          <span class="input-label">Height</span>
+          <input type="text" ng-model="design.box.height.in" ng-change="BoxToCm(design)">
+          <span class="fade-label">in</span>
+        </label>
+        <label class="item item-input" ng-show="settings[0].metric">
+          <span class="input-label">Depth</span>
+          <input type="text" ng-model="design.box.depth.cm" readonly>
+          <span class="fade-label">cm</span>
+        </label>
+        <label class="item item-input" ng-show="!settings[0].metric">
+          <span class="input-label">Depth</span>
+          <input type="text" ng-model="design.box.depth.in" readonly>
+          <span class="fade-label">in</span>
+        </label>
+      </div>
+      <div class="item item-text-wrap charter">  
+        <canvas 
+          id="line" 
+          class="chart chart-line" 
+          chart-data="design.splData" 
+          chart-series="series"
+          chart-colors="colors"
+          chart-options="options">
+        </canvas>
+      </div>  
+      <div class="padding">
+        	<input type="submit" class="button button-block button-dark" value = "Save Design" />
+      </div>
+    </form>  
+  </ion-content>
+</ion-view>

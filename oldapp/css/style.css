@@ -1,0 +1,32 @@
+/* Empty. Add your own CSS if you like */
+.item select{
+	width: 100%;
+}
+
+.item input{
+	width: 33%;
+}
+
+span.input-label{
+	width: 33%;
+}
+
+span.fade-label{
+	bottom: 10px;
+    color: #d2d2d2;
+    position: absolute;
+    right: 50px;
+}
+.ion-ios-volume-low::before {
+    font-size: 2.1em;
+    margin-top: -17px;
+
+}
+input[disabled], select[disabled], textarea[disabled], input[readonly]:not(.cloned-text-input), textarea[readonly]:not(.cloned-text-input), select[readonly] {
+    background-color: transparent;
+    color: #d2d2d2;
+}
+.charter {
+  width: 100%;
+}
+

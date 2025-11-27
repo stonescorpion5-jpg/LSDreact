@@ -1,0 +1,99 @@
+<ion-view view-title="Driver > {{driver.brand}} : {{driver.model}} : {{driver.size}}in">
+  <ion-content class="padding">    
+    <form ng-submit = "editDriver(driver)">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Brand</span>
+          <input type="text" ng-model="driver.brand" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Model</span>
+          <input type="text" ng-model="driver.model" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Fs</span>
+          <input type="text" ng-model="driver.fs" ng-change="calTS(driver)" required>
+          <span class="fade-label">Hz</span>
+        </label>
+      	<label class="item item-input">
+          <span class="input-label">Re</span>
+        	<input type="text" ng-model="driver.re" required>
+          <span class="fade-label">Ohm</span>
+      	</label>
+      	<label class="item item-input">
+          <span class="input-label">Qms</span>
+        	<input type="text" ng-model="driver.qms" ng-change="calTS(driver)" required>
+      	</label>
+        <label class="item item-input">
+          <span class="input-label">Qes</span>
+          <input type="text" ng-model="driver.qes" ng-change="calTS(driver)" required>
+        </label>        
+        <label class="item item-input">
+          <span class="input-label">Size</span>
+          <input type="text" ng-model="driver.size" ng-change="displacement(driver)" required>
+          <span class="fade-label">in</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Sd</span>
+          <input type="text" ng-model="driver.sd" required>
+          <span class="fade-label">cm<sup>2</sup></span>
+        </label>
+        <h5>Estimate Only! please enter actual displacement if available</h5>
+        <label class="item item-input">
+          <span class="input-label">Driver Displacement</span>
+          <input type="text" ng-model="driver.dd3" required>
+          <span class="fade-label">liters</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Vas</span>
+          <input type="text" ng-model="driver.vas" ng-change="calTS(driver)" required>
+          <span class="fade-label">liters</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Xmax</span>
+          <input type="text" ng-model="driver.xmax" required>
+          <span class="fade-label">mm</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Le</span>
+          <input type="text" ng-model="driver.le" required>
+          <span class="fade-label">mH</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Rms</span>
+          <input type="text" ng-model="driver.rms" required>
+          <span class="fade-label">watts</span>
+        </label>
+        <h5>Optimum Cabinet Parameters</h5>
+        <label class="item item-input">
+          <span class="input-label">Sealed Vb</span>
+          <input type="text" ng-model="driver.recSealedVb" readonly>
+          <span class="fade-label">liters</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Sealed F3</span>
+          <input type="text" ng-model="driver.recSealedF3" readonly>
+          <span class="fade-label">Hz</span>
+        </label>     
+        <label class="item item-input">
+          <span class="input-label">Ported Vb</span>
+          <input type="text" ng-model="driver.recPortedVb" readonly>
+          <span class="fade-label">liters</span>
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Ported Fb</span>
+          <input type="text" ng-model="driver.recPortedFb" readonly>
+          <span class="fade-label">Hz</span>
+        </label>  
+        <label class="item item-input">
+          <span class="input-label">Ported F3</span>
+          <input type="text" ng-model="driver.recPortedF3" readonly>
+          <span class="fade-label">Hz</span>
+        </label>     
+      </div>
+      <div class="padding">
+        	<input type="submit" class="button button-block button-dark" value = "Save Driver" />
+      </div>
+    </form>
+  </ion-content>
+</ion-view>
