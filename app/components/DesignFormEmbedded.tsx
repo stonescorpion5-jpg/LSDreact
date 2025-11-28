@@ -24,6 +24,8 @@ export function DesignFormEmbedded({
         fb: 0,
         nod: 1,
         np: 1,
+        boxWidthCm: 30,
+        boxHeightCm: 30,
       };
     }
 
@@ -39,6 +41,8 @@ export function DesignFormEmbedded({
       fb: existing.fb,
       nod: existing.nod || 1,
       np: existing.np || 1,
+      boxWidthCm: existing.box.width.cm || 30,
+      boxHeightCm: existing.box.height.cm || 30,
     };
   });
 
@@ -96,6 +100,8 @@ export function DesignFormEmbedded({
       fb: existing.fb,
       nod: existing.nod || 1,
       np: existing.np || 1,
+      boxWidthCm: existing.box.width.cm || 30,
+      boxHeightCm: existing.box.height.cm || 30,
     });
   }, [existing?.id]);
 
@@ -114,6 +120,19 @@ export function DesignFormEmbedded({
 
   function submit(e?: React.FormEvent) {
     if (e) e.preventDefault();
+    
+    // Calculate depth from Vb: depth = Vb / (width * height)
+    // Vb is in liters (1 liter = 1000 cm³)
+    const widthCm = Number(form.boxWidthCm) || 30;
+    const heightCm = Number(form.boxHeightCm) || 30;
+    const vbCm3 = Number(form.vb) * 1000; // Convert liters to cm³
+    const depthCm = vbCm3 / (widthCm * heightCm);
+    
+    // Convert cm to inches (1 inch = 2.54 cm)
+    const widthIn = widthCm / 2.54;
+    const heightIn = heightCm / 2.54;
+    const depthIn = depthCm / 2.54;
+    
     const payload = {
       name: String(form.name),
       driverId: String(form.driverId),
@@ -123,10 +142,10 @@ export function DesignFormEmbedded({
       nod: Number(form.nod),
       np: Number(form.np),
       isDisplayed: existing?.isDisplayed ?? true,
-      box: existing?.box || {
-        width: { cm: 0, in: 0 },
-        height: { cm: 0, in: 0 },
-        depth: { cm: 0, in: 0 },
+      box: {
+        width: { cm: widthCm, in: widthIn },
+        height: { cm: heightCm, in: heightIn },
+        depth: { cm: depthCm, in: depthIn },
       },
       port: existing?.port || {
         area: { cm: 0, in: 0 },
@@ -282,6 +301,45 @@ export function DesignFormEmbedded({
             className="border border-gray-300 p-2 rounded text-gray-600 bg-gray-100 cursor-not-allowed"
           />
           <p className="text-xs text-gray-500 mt-1">Auto-calculated from driver specs</p>
+        </label>
+
+        <label className="flex flex-col col-span-1">
+          <span className="text-sm text-gray-700">Box Width (cm)</span>
+          <input
+            type="number"
+            step="0.1"
+            value={form.boxWidthCm}
+            onChange={(e) => handleChange('boxWidthCm', e.target.value)}
+            className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
+          />
+        </label>
+
+        <label className="flex flex-col col-span-1">
+          <span className="text-sm text-gray-700">Box Height (cm)</span>
+          <input
+            type="number"
+            step="0.1"
+            value={form.boxHeightCm}
+            onChange={(e) => handleChange('boxHeightCm', e.target.value)}
+            className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
+          />
+        </label>
+
+        <label className="flex flex-col col-span-2">
+          <span className="text-sm text-gray-700">
+            Box Depth (cm)
+            <span className="text-xs text-gray-500 ml-1">
+              (Auto-calculated: {((Number(form.vb) * 1000) / ((Number(form.boxWidthCm) || 30) * (Number(form.boxHeightCm) || 30))).toFixed(1)} cm)
+            </span>
+          </span>
+          <input
+            type="number"
+            step="0.1"
+            value={((Number(form.vb) * 1000) / ((Number(form.boxWidthCm) || 30) * (Number(form.boxHeightCm) || 30))).toFixed(1)}
+            disabled
+            className="border border-gray-300 p-2 rounded text-gray-600 bg-gray-100 cursor-not-allowed"
+          />
+          <p className="text-xs text-gray-500 mt-1">Calculated from Vb ÷ (Width × Height)</p>
         </label>
       </div>
 

@@ -9,7 +9,7 @@ import { useState, useMemo, useEffect } from 'react';
 type TabType = 'design' | 'box' | 'port';
 
 export default function DesignPage() {
-  const { designs, drivers, toggleDisplayDesign } = useAppStore();
+  const { designs, drivers, toggleDisplayDesign, editDesign } = useAppStore();
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
 
@@ -228,24 +228,65 @@ export default function DesignPage() {
                     (() => {
                       const design = designs.find((d) => d.id === focusedDesignId);
                       if (!design) return <p className="text-gray-500 text-center py-8">Design not found</p>;
+                      
+                      const widthCm = design.box.width.cm;
+                      const heightCm = design.box.height.cm;
+                      const depthCm = (design.vb * 1000) / (widthCm * heightCm);
+                      const widthIn = widthCm / 2.54;
+                      const heightIn = heightCm / 2.54;
+                      const depthIn = depthCm / 2.54;
+                      
                       return (
                         <div className="space-y-4">
                           <h3 className="font-semibold text-gray-900">{design.name}</h3>
                           <div className="grid grid-cols-2 gap-4">
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Width</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.box.width.cm.toFixed(2)} cm</p>
-                              <p className="text-sm text-gray-600">{design.box.width.in.toFixed(2)} in</p>
+                              <p className="text-xs text-gray-600 mb-1">Width (Editable)</p>
+                              <input
+                                type="number"
+                                step="0.1"
+                                value={widthCm.toFixed(2)}
+                                onChange={(e) => {
+                                  const newWidth = parseFloat(e.target.value) || widthCm;
+                                  const newWidthIn = newWidth / 2.54;
+                                  editDesign({
+                                    ...design,
+                                    box: {
+                                      ...design.box,
+                                      width: { cm: newWidth, in: newWidthIn }
+                                    }
+                                  });
+                                }}
+                                className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
+                              />
+                              <p className="text-sm text-gray-600">{(widthCm / 2.54).toFixed(2)} in</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Height</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.box.height.cm.toFixed(2)} cm</p>
-                              <p className="text-sm text-gray-600">{design.box.height.in.toFixed(2)} in</p>
+                              <p className="text-xs text-gray-600 mb-1">Height (Editable)</p>
+                              <input
+                                type="number"
+                                step="0.1"
+                                value={heightCm.toFixed(2)}
+                                onChange={(e) => {
+                                  const newHeight = parseFloat(e.target.value) || heightCm;
+                                  const newHeightIn = newHeight / 2.54;
+                                  editDesign({
+                                    ...design,
+                                    box: {
+                                      ...design.box,
+                                      height: { cm: newHeight, in: newHeightIn }
+                                    }
+                                  });
+                                }}
+                                className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
+                              />
+                              <p className="text-sm text-gray-600">{(heightCm / 2.54).toFixed(2)} in</p>
                             </div>
-                            <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Depth</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.box.depth.cm.toFixed(2)} cm</p>
-                              <p className="text-sm text-gray-600">{design.box.depth.in.toFixed(2)} in</p>
+                            <div className="border rounded-lg p-4 bg-gray-50 col-span-2">
+                              <p className="text-xs text-gray-600 mb-1">Depth (Auto-calculated from Vb)</p>
+                              <p className="text-lg font-semibold text-gray-900 mb-2">{depthCm.toFixed(2)} cm</p>
+                              <p className="text-sm text-gray-600">{depthIn.toFixed(2)} in</p>
+                              <p className="text-xs text-gray-500 mt-2">Calculated as: Vb ({design.vb}L) ÷ (Width × Height)</p>
                             </div>
                           </div>
                         </div>

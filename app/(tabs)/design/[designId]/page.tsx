@@ -9,7 +9,7 @@ import { useParams } from 'next/navigation';
 export default function DesignDetailPage() {
   const params = useParams();
   const designId = params.designId as string;
-  const { designs, drivers } = useAppStore();
+  const { designs, drivers, editDesign } = useAppStore();
 
   const design = designs.find((d) => d.id === designId);
   const driver = design ? drivers.find((d) => d.id === design.driverId) : null;
@@ -70,19 +70,52 @@ export default function DesignDetailPage() {
             <h2 className="text-lg font-semibold mb-4">Box Dimensions</h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-gray-50 p-3 rounded">
-                <p className="text-xs text-gray-600">Width</p>
-                <p className="text-sm font-semibold">{design.box.width.cm.toFixed(2)} cm</p>
-                <p className="text-xs text-gray-600">{design.box.width.in.toFixed(2)} in</p>
+                <p className="text-xs text-gray-600 mb-2">Width (Editable)</p>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={design.box.width.cm.toFixed(2)}
+                  onChange={(e) => {
+                    const newWidth = parseFloat(e.target.value) || design.box.width.cm;
+                    const newWidthIn = newWidth / 2.54;
+                    editDesign({
+                      ...design,
+                      box: {
+                        ...design.box,
+                        width: { cm: newWidth, in: newWidthIn }
+                      }
+                    });
+                  }}
+                  className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2 text-sm"
+                />
+                <p className="text-xs text-gray-600">{(design.box.width.cm / 2.54).toFixed(2)} in</p>
               </div>
               <div className="bg-gray-50 p-3 rounded">
-                <p className="text-xs text-gray-600">Height</p>
-                <p className="text-sm font-semibold">{design.box.height.cm.toFixed(2)} cm</p>
-                <p className="text-xs text-gray-600">{design.box.height.in.toFixed(2)} in</p>
+                <p className="text-xs text-gray-600 mb-2">Height (Editable)</p>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={design.box.height.cm.toFixed(2)}
+                  onChange={(e) => {
+                    const newHeight = parseFloat(e.target.value) || design.box.height.cm;
+                    const newHeightIn = newHeight / 2.54;
+                    editDesign({
+                      ...design,
+                      box: {
+                        ...design.box,
+                        height: { cm: newHeight, in: newHeightIn }
+                      }
+                    });
+                  }}
+                  className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2 text-sm"
+                />
+                <p className="text-xs text-gray-600">{(design.box.height.cm / 2.54).toFixed(2)} in</p>
               </div>
               <div className="bg-gray-50 p-3 rounded">
-                <p className="text-xs text-gray-600">Depth</p>
-                <p className="text-sm font-semibold">{design.box.depth.cm.toFixed(2)} cm</p>
-                <p className="text-xs text-gray-600">{design.box.depth.in.toFixed(2)} in</p>
+                <p className="text-xs text-gray-600 mb-2">Depth (Auto)</p>
+                <p className="text-sm font-semibold mb-2">{((design.vb * 1000) / (design.box.width.cm * design.box.height.cm)).toFixed(2)} cm</p>
+                <p className="text-xs text-gray-600">{(((design.vb * 1000) / (design.box.width.cm * design.box.height.cm)) / 2.54).toFixed(2)} in</p>
+                <p className="text-xs text-gray-500 mt-2">Calculated from Vb ÷ (W×H)</p>
               </div>
             </div>
           </div>
