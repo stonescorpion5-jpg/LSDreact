@@ -13,17 +13,6 @@ export default function NewDesignPage() {
   const [selectedDesigns, setSelectedDesigns] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<TabType>('design');
 
-  if (drivers.length === 0) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <p className="text-red-500 mb-4">No drivers available. Please create a driver first.</p>
-        <Link href="/driver" className="text-blue-600 underline">
-          Go to Drivers
-        </Link>
-      </div>
-    );
-  }
-
   const toggleDesign = (designId: string) => {
     const newSelected = new Set(selectedDesigns);
     if (newSelected.has(designId)) {
@@ -47,6 +36,17 @@ export default function NewDesignPage() {
   const selectedDesignsList = Array.from(selectedDesigns)
     .map((id) => designs.find((d) => d.id === id))
     .filter((d) => d) as any[];
+
+  if (drivers.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <p className="text-red-500 mb-4">No drivers available. Please create a driver first.</p>
+        <Link href="/driver" className="text-blue-600 underline">
+          Go to Drivers
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
