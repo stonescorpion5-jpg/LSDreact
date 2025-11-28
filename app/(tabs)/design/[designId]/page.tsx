@@ -9,7 +9,7 @@ import { useParams } from 'next/navigation';
 export default function DesignDetailPage() {
   const params = useParams();
   const designId = params.designId as string;
-  const { designs, drivers, editDesign } = useAppStore();
+  const { designs, drivers, editDesign, removeDesign } = useAppStore();
 
   const design = designs.find((d) => d.id === designId);
   const driver = design ? drivers.find((d) => d.id === design.driverId) : null;
@@ -152,6 +152,30 @@ export default function DesignDetailPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Bottom Footer - Save/Delete Buttons */}
+        <div className="xl:col-span-2 border-t bg-gray-50 p-4 flex justify-end gap-2 -mx-6 -mb-8 px-6">
+          <button
+            onClick={() => {
+              // Refresh to show updated design
+              window.location.reload();
+            }}
+            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
+          >
+            Save
+          </button>
+          <button
+            onClick={() => {
+              if (confirm('Are you sure you want to delete this design?')) {
+                removeDesign(design.id);
+                window.location.href = '/design';
+              }
+            }}
+            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 text-sm font-medium"
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>

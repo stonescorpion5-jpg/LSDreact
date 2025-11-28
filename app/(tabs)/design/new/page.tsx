@@ -9,7 +9,7 @@ import { useState, useMemo } from 'react';
 type TabType = 'design' | 'box' | 'port';
 
 export default function NewDesignPage() {
-  const { designs, drivers, editDesign } = useAppStore();
+  const { designs, drivers, editDesign, removeDesign } = useAppStore();
   const [selectedDesigns, setSelectedDesigns] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
@@ -319,6 +319,36 @@ export default function NewDesignPage() {
                 </div>
               )}
             </div>
+
+            {/* Tab Footer - Save/Delete Buttons */}
+            {focusedDesignId && (
+              <div className="border-t bg-gray-50 p-4 flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    const design = designs.find((d) => d.id === focusedDesignId);
+                    if (design) {
+                      // Refresh to show updated design
+                      window.location.reload();
+                    }
+                  }}
+                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => {
+                    const design = designs.find((d) => d.id === focusedDesignId);
+                    if (design && confirm('Are you sure you want to delete this design?')) {
+                      removeDesign(design.id);
+                      window.location.reload();
+                    }
+                  }}
+                  className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 text-sm font-medium"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
