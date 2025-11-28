@@ -112,6 +112,46 @@ export function DesignFormEmbedded({
     }
   }, [drivers.length, existing?.id]);
 
+  // Auto-save when form changes (for live graph updates)
+  useEffect(() => {
+    if (!existing) return; // Don't auto-save new designs
+    
+    const timer = setTimeout(() => {
+      const payload = {
+        name: String(form.name),
+        driverId: String(form.driverId),
+        type: form.type as 'Ported' | 'Sealed',
+        vb: Number(form.vb),
+        fb: Number(form.fb),
+        nod: Number(form.nod),
+        np: Number(form.np),
+        isDisplayed: existing?.isDisplayed ?? true,
+        box: existing?.box || {
+          width: { cm: 0, in: 0 },
+          height: { cm: 0, in: 0 },
+          depth: { cm: 0, in: 0 },
+        },
+        port: existing?.port || {
+          area: { cm: 0, in: 0 },
+          width: { cm: 0, in: 0 },
+          height: { cm: 0, in: 0 },
+        },
+        dmin: existing?.dmin || {
+          actual: { cm: 0, in: 0 },
+          rec: { cm: 0, in: 0 },
+          outer: { cm: 0, in: 0 },
+        },
+        bracing: existing?.bracing || { cm: 2.54, in: 1 },
+        lv: existing?.lv || { cm: 0, in: 0 },
+        splData: existing?.splData || { dataset: [] },
+      } as Omit<Design, 'id'>;
+      
+      editDesign({ id: existing.id, ...payload });
+    }, 500); // Debounce: save 500ms after last change
+    
+    return () => clearTimeout(timer);
+  }, [form, existing, editDesign]);
+
   function submit(e?: React.FormEvent) {
     if (e) e.preventDefault();
     const payload = {

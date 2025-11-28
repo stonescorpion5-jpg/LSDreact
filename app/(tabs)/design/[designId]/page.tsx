@@ -11,6 +11,8 @@ export default function DesignDetailPage() {
   const designId = params.designId as string;
   const { designs, drivers } = useAppStore();
 
+  // Use a fresh query to get the current design and driver
+  // This ensures the component re-renders when store updates
   const design = designs.find((d) => d.id === designId);
   const driver = design ? drivers.find((d) => d.id === design.driverId) : null;
 
@@ -41,7 +43,7 @@ export default function DesignDetailPage() {
           <DesignFormEmbedded existing={design} />
         </div>
 
-        {/* Right Column: Chart and Specs Below (1/2 width on xl and up) */}
+        {/* Right Column: Chart and Specs - Live Updates as You Edit */}
         <div className="flex flex-col space-y-6 xl:col-span-1 min-h-96">
           {/* SPL Response Curve - Grows to fill available space */}
           <div className="flex flex-col flex-grow min-h-96">
