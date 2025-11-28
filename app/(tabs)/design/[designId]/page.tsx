@@ -41,15 +41,17 @@ export default function DesignDetailPage() {
         </div>
 
         {/* Right Column: Chart and Specs Below (3/4 width on xl and up) */}
-        <div className="space-y-6 xl:col-span-3">
-          {/* SPL Response Curve */}
-          <div className="border p-4 rounded-lg">
+        <div className="flex flex-col space-y-6 xl:col-span-3">
+          {/* SPL Response Curve - Grows to fill available space */}
+          <div className="border p-4 rounded-lg flex flex-col flex-grow">
             <h2 className="text-lg font-semibold mb-4">SPL Response</h2>
-            {design.splData?.dataset && design.splData.dataset.length > 0 ? (
-              <ResponseCurve data={design.splData.dataset} />
-            ) : (
-              <p className="text-gray-500">No SPL data available</p>
-            )}
+            <div className="flex-grow flex items-center justify-center">
+              {design.splData?.dataset && design.splData.dataset.length > 0 ? (
+                <ResponseCurve data={design.splData.dataset} />
+              ) : (
+                <p className="text-gray-500">No SPL data available</p>
+              )}
+            </div>
           </div>
 
           {/* Box Dimensions */}
