@@ -79,7 +79,7 @@ export default function DesignDetailPage() {
           {/* Port Dimensions */}
           <div className="border p-4 rounded-lg">
             <h2 className="text-lg font-semibold mb-4">Port Specifications</h2>
-            <div className="grid grid-cols-4 gap-3 text-sm">
+            <div className="grid grid-cols-4 gap-3 text-sm text-gray-700">
               <div className="bg-gray-50 p-2 rounded">
                 <p className="text-xs text-gray-600">Min Dia (Rec)</p>
                 <p className="font-semibold">{design.dmin.rec.cm.toFixed(2)} cm</p>
