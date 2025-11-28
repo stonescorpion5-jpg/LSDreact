@@ -10,19 +10,47 @@ export function DriverImportModal({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const parseDriverJson = (json: string): Partial<Driver> => {
-    // Handle both single object and array of drivers
-    let data = JSON.parse(json);
-    if (Array.isArray(data)) {
-      data = data[0]; // Take first driver if array
+  const parseDriverData = (text: string): Partial<Driver> => {
+    let data: Record<string, any> = {};
+
+    // Try to detect format: TSV (tab-separated key-value), JSON, or plain JSON
+    if (text.includes('\t') || (text.includes('\n') && text.includes('"') && !text.trim().startsWith('{'))) {
+      // Parse TSV format (key\t"value" or key\tvalue)
+      const lines = text.trim().split('\n');
+      for (const line of lines) {
+        const parts = line.split('\t').map(p => p.trim());
+        if (parts.length >= 2) {
+          const key = parts[0].trim();
+          let value = parts[1].trim();
+          // Remove quotes if present
+          if ((value.startsWith('"') && value.endsWith('"')) || 
+              (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.slice(1, -1);
+          }
+          data[key] = value;
+        }
+      }
+    } else {
+      // Try JSON parsing
+      data = JSON.parse(text);
+      if (Array.isArray(data)) {
+        data = data[0]; // Take first driver if array
+      }
     }
 
-    // Map common JSON field names to our Driver interface
+    // Calculate driver size from diameter (dd) if available
+    let size = Number(data.size || data.Size || data.wooferDiameter || data.dd || 0);
+    if (size > 100) {
+      // If dd is in mm, convert to inches
+      size = Math.round((size / 25.4) * 10) / 10;
+    }
+
+    // Map common field names to our Driver interface
     const driver: Partial<Driver> = {
       brand: data.brand || data.Brand || '',
       model: data.model || data.Model || '',
-      size: Number(data.size || data.Size || data.wooferDiameter || 0),
-      fs: Number(data.fs || data.Fs || 0),
+      size: size,
+      fs: Number(data.fs || data.Fs || data.f0 || 0),
       qms: Number(data.qms || data.Qms || 0),
       qes: Number(data.qes || data.Qes || 0),
       qts: Number(data.qts || data.Qts || 0),
@@ -31,7 +59,7 @@ export function DriverImportModal({ onClose }: { onClose: () => void }) {
       sd: Number(data.sd || data.Sd || 0),
       rms: Number(data.rms || data.Rms || 0),
       re: Number(data.re || data.Re || 0),
-      le: Number(data.le || data.Le || 0),
+      le: Number(data.le || data.Le || data.leb || 0),
       dd3: Number(data.dd3 || data.Dd3 || 0),
       ebp: Number(data.ebp || data.Ebp || 0),
       k1: Number(data.k1 || data.K1 || 0),
@@ -62,7 +90,7 @@ export function DriverImportModal({ onClose }: { onClose: () => void }) {
     }
 
     try {
-      const driverData = parseDriverJson(jsonText);
+      const driverData = parseDriverData(jsonText);
 
       // Validate required fields
       if (!driverData.brand || !driverData.model) {
@@ -105,24 +133,29 @@ export function DriverImportModal({ onClose }: { onClose: () => void }) {
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Paste Driver JSON Data
+              Paste Driver Data (JSON, TSV, or Tab-Separated)
             </label>
             <textarea
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
-              placeholder='Paste JSON data like: {"brand": "Dayton", "model": "RS225S-4", "size": 8, "fs": 45, ...}'
+              placeholder='Paste data like: {"brand": "B&C Speaker", "model": "10CL51"...} OR key\t"value" format'
               className="w-full h-64 p-4 border border-gray-300 rounded-lg font-mono text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-900 font-semibold mb-2">Supported JSON Fields:</p>
+            <p className="text-sm text-blue-900 font-semibold mb-2">Supported Formats & Fields:</p>
+            <div className="mb-3">
+              <p className="text-xs text-blue-800 font-semibold">📋 Format Support:</p>
+              <p className="text-xs text-blue-800">• JSON objects: {"{"} "brand": "...", "model": "..." {"}"}</p>
+              <p className="text-xs text-blue-800">• TSV (Tab-Separated): key\t"value" or key\tvalue</p>
+            </div>
             <div className="grid grid-cols-2 gap-2 text-xs text-blue-800">
               <div>
                 <p>• brand/Brand</p>
                 <p>• model/Model</p>
-                <p>• size/Size</p>
-                <p>• fs/Fs</p>
+                <p>• size/Size/dd</p>
+                <p>• fs/Fs/f0</p>
                 <p>• qms/Qms</p>
                 <p>• qes/Qes</p>
                 <p>• vas/Vas</p>
@@ -132,8 +165,8 @@ export function DriverImportModal({ onClose }: { onClose: () => void }) {
                 <p>• sd/Sd</p>
                 <p>• rms/Rms</p>
                 <p>• re/Re</p>
-                <p>• le/Le</p>
-                <p>• peakSPL/PeakSpl</p>
+                <p>• le/Le/leb</p>
+                <p>• peakSPL</p>
                 <p>• recPortedVb</p>
                 <p>• recSealedVb</p>
                 <p>• And more...</p>
