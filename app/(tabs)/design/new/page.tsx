@@ -13,6 +13,7 @@ export default function NewDesignPage() {
   const [selectedDesigns, setSelectedDesigns] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
+  const [unitSystem, setUnitSystem] = useState<'cm' | 'in'>('cm');
 
   const toggleDesign = (designId: string) => {
     const newSelected = new Set(selectedDesigns);
@@ -164,6 +165,13 @@ export default function NewDesignPage() {
               >
                 Port
               </button>
+              <button
+                onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
+                className="px-3 py-3 text-sm font-medium text-gray-700 border-l hover:bg-gray-100 transition-colors"
+                title="Toggle between cm and inches"
+              >
+                {unitSystem}
+              </button>
             </div>
 
             {/* Tab Content */}
@@ -219,13 +227,14 @@ export default function NewDesignPage() {
                           <h3 className="font-semibold text-gray-900">{design.name}</h3>
                           <div className="grid grid-cols-2 gap-4">
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Width (Editable)</p>
+                              <p className="text-xs text-gray-600 mb-1">Width (Editable) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
                               <input
                                 type="number"
                                 step="0.1"
-                                value={widthCm.toFixed(2)}
+                                value={unitSystem === 'cm' ? widthCm.toFixed(2) : widthIn.toFixed(2)}
                                 onChange={(e) => {
-                                  const newWidth = parseFloat(e.target.value) || widthCm;
+                                  const inputValue = parseFloat(e.target.value);
+                                  const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
                                   const newWidthIn = newWidth / 2.54;
                                   editDesign({
                                     ...design,
@@ -237,16 +246,17 @@ export default function NewDesignPage() {
                                 }}
                                 className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
                               />
-                              <p className="text-sm text-gray-600">{(widthCm / 2.54).toFixed(2)} in</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? widthIn.toFixed(2) + ' in' : widthCm.toFixed(2) + ' cm'}</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Height (Editable)</p>
+                              <p className="text-xs text-gray-600 mb-1">Height (Editable) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
                               <input
                                 type="number"
                                 step="0.1"
-                                value={heightCm.toFixed(2)}
+                                value={unitSystem === 'cm' ? heightCm.toFixed(2) : heightIn.toFixed(2)}
                                 onChange={(e) => {
-                                  const newHeight = parseFloat(e.target.value) || heightCm;
+                                  const inputValue = parseFloat(e.target.value);
+                                  const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
                                   const newHeightIn = newHeight / 2.54;
                                   editDesign({
                                     ...design,
@@ -258,12 +268,12 @@ export default function NewDesignPage() {
                                 }}
                                 className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
                               />
-                              <p className="text-sm text-gray-600">{(heightCm / 2.54).toFixed(2)} in</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? heightIn.toFixed(2) + ' in' : heightCm.toFixed(2) + ' cm'}</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50 col-span-2">
-                              <p className="text-xs text-gray-600 mb-1">Depth (Auto-calculated from Vb)</p>
-                              <p className="text-lg font-semibold text-gray-900 mb-2">{depthCm.toFixed(2)} cm</p>
-                              <p className="text-sm text-gray-600">{depthIn.toFixed(2)} in</p>
+                              <p className="text-xs text-gray-600 mb-1">Depth (Auto-calculated from Vb) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
+                              <p className="text-lg font-semibold text-gray-900 mb-2">{unitSystem === 'cm' ? depthCm.toFixed(2) : depthIn.toFixed(2)} {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? depthIn.toFixed(2) + ' in' : depthCm.toFixed(2) + ' cm'}</p>
                               <p className="text-xs text-gray-500 mt-2">Calculated as: Vb ({design.vb}L) ÷ (Width × Height)</p>
                             </div>
                           </div>
@@ -288,28 +298,34 @@ export default function NewDesignPage() {
                           <h3 className="font-semibold text-gray-900">{design.name}</h3>
                           <div className="grid grid-cols-2 gap-4">
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Min Dia (Rec)</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.dmin.rec.cm.toFixed(2)} cm</p>
+                              <p className="text-xs text-gray-600 mb-1">Min Dia (Rec) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
+                              <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.rec.cm.toFixed(2) : design.dmin.rec.in.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? design.dmin.rec.in.toFixed(2) + ' in' : design.dmin.rec.cm.toFixed(2) + ' cm'}</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Min Dia (Act)</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.dmin.actual.cm.toFixed(2)} cm</p>
+                              <p className="text-xs text-gray-600 mb-1">Min Dia (Act) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
+                              <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.actual.cm.toFixed(2) : design.dmin.actual.in.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? design.dmin.actual.in.toFixed(2) + ' in' : design.dmin.actual.cm.toFixed(2) + ' cm'}</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Port Area</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.port.area.cm.toFixed(2)} cm²</p>
+                              <p className="text-xs text-gray-600 mb-1">Port Area ({unitSystem === 'cm' ? 'cm²' : 'in²'})</p>
+                              <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.area.cm.toFixed(2) : design.port.area.in.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? design.port.area.in.toFixed(2) + ' in²' : design.port.area.cm.toFixed(2) + ' cm²'}</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Port Length</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.lv.cm.toFixed(2)} cm</p>
+                              <p className="text-xs text-gray-600 mb-1">Port Length ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
+                              <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.lv.cm.toFixed(2) : design.lv.in.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? design.lv.in.toFixed(2) + ' in' : design.lv.cm.toFixed(2) + ' cm'}</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Port Width</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.port.width.cm.toFixed(2)} cm</p>
+                              <p className="text-xs text-gray-600 mb-1">Port Width ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
+                              <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.width.cm.toFixed(2) : design.port.width.in.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? design.port.width.in.toFixed(2) + ' in' : design.port.width.cm.toFixed(2) + ' cm'}</p>
                             </div>
                             <div className="border rounded-lg p-4 bg-gray-50">
-                              <p className="text-xs text-gray-600 mb-1">Port Height</p>
-                              <p className="text-lg font-semibold text-gray-900">{design.port.height.cm.toFixed(2)} cm</p>
+                              <p className="text-xs text-gray-600 mb-1">Port Height ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
+                              <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.height.cm.toFixed(2) : design.port.height.in.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600">{unitSystem === 'cm' ? design.port.height.in.toFixed(2) + ' in' : design.port.height.cm.toFixed(2) + ' cm'}</p>
                             </div>
                           </div>
                         </div>
