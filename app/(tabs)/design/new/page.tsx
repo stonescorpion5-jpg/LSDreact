@@ -12,13 +12,20 @@ export default function NewDesignPage() {
   const { designs, drivers } = useAppStore();
   const [selectedDesigns, setSelectedDesigns] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<TabType>('design');
+  const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
 
   const toggleDesign = (designId: string) => {
     const newSelected = new Set(selectedDesigns);
     if (newSelected.has(designId)) {
       newSelected.delete(designId);
+      // If we're removing the focused design, clear it
+      if (focusedDesignId === designId) {
+        setFocusedDesignId(null);
+      }
     } else {
       newSelected.add(designId);
+      // Auto-focus on the newly selected design
+      setFocusedDesignId(designId);
     }
     setSelectedDesigns(newSelected);
   };
@@ -68,23 +75,30 @@ export default function NewDesignPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {designs.map((design) => (
-                  <label
+                  <div
                     key={design.id}
-                    className="flex items-start gap-3 p-3 rounded border border-gray-300 hover:bg-gray-50 cursor-pointer transition-colors"
+                    className={`flex items-start gap-3 p-3 rounded border transition-colors ${
+                      focusedDesignId === design.id
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-300 hover:bg-gray-50'
+                    }`}
                   >
                     <input
                       type="checkbox"
                       checked={selectedDesigns.has(design.id)}
-                      onChange={() => toggleDesign(design.id)}
-                      className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                      onChange={() => {
+                        toggleDesign(design.id);
+                        setFocusedDesignId(design.id);
+                      }}
+                      className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 pointer-events-none select-none">
                       <div className="font-medium text-gray-900">{design.name}</div>
                       <div className="text-xs text-gray-600">
                         {drivers.find((d) => d.id === design.driverId)?.brandModel}
                       </div>
                     </div>
-                  </label>
+                  </div>
                 ))}
               </div>
             )}
@@ -160,37 +174,35 @@ export default function NewDesignPage() {
               {/* Box Tab */}
               {activeTab === 'box' && (
                 <div>
-                  {selectedDesignsList.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">Select designs to view box dimensions</p>
+                  {!focusedDesignId ? (
+                    <p className="text-gray-500 text-center py-8">Select a design to view box dimensions</p>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b bg-gray-50">
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Design Name</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Width (cm)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Height (cm)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Depth (cm)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Width (in)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Height (in)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Depth (in)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedDesignsList.map((design, idx) => (
-                            <tr key={design.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                              <td className="px-4 py-3 font-medium text-gray-900">{design.name}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.box.width.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.box.height.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.box.depth.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.box.width.in.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.box.height.in.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.box.depth.in.toFixed(2)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    (() => {
+                      const design = designs.find((d) => d.id === focusedDesignId);
+                      if (!design) return <p className="text-gray-500 text-center py-8">Design not found</p>;
+                      return (
+                        <div className="space-y-4">
+                          <h3 className="font-semibold text-gray-900">{design.name}</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Width</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.box.width.cm.toFixed(2)} cm</p>
+                              <p className="text-sm text-gray-600">{design.box.width.in.toFixed(2)} in</p>
+                            </div>
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Height</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.box.height.cm.toFixed(2)} cm</p>
+                              <p className="text-sm text-gray-600">{design.box.height.in.toFixed(2)} in</p>
+                            </div>
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Depth</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.box.depth.cm.toFixed(2)} cm</p>
+                              <p className="text-sm text-gray-600">{design.box.depth.in.toFixed(2)} in</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()
                   )}
                 </div>
               )}
@@ -198,37 +210,44 @@ export default function NewDesignPage() {
               {/* Port Tab */}
               {activeTab === 'port' && (
                 <div>
-                  {selectedDesignsList.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">Select designs to view port specifications</p>
+                  {!focusedDesignId ? (
+                    <p className="text-gray-500 text-center py-8">Select a design to view port specifications</p>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b bg-gray-50">
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Design Name</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Min Dia Rec (cm)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Min Dia Act (cm)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Port Area (cm²)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Port Length (cm)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Port Width (cm)</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-900">Port Height (cm)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedDesignsList.map((design, idx) => (
-                            <tr key={design.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                              <td className="px-4 py-3 font-medium text-gray-900">{design.name}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.dmin.rec.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.dmin.actual.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.port.area.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.lv.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.port.width.cm.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-gray-700">{design.port.height.cm.toFixed(2)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    (() => {
+                      const design = designs.find((d) => d.id === focusedDesignId);
+                      if (!design) return <p className="text-gray-500 text-center py-8">Design not found</p>;
+                      return (
+                        <div className="space-y-4">
+                          <h3 className="font-semibold text-gray-900">{design.name}</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Min Dia (Rec)</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.dmin.rec.cm.toFixed(2)} cm</p>
+                            </div>
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Min Dia (Act)</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.dmin.actual.cm.toFixed(2)} cm</p>
+                            </div>
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Port Area</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.port.area.cm.toFixed(2)} cm²</p>
+                            </div>
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Port Length</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.lv.cm.toFixed(2)} cm</p>
+                            </div>
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Port Width</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.port.width.cm.toFixed(2)} cm</p>
+                            </div>
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                              <p className="text-xs text-gray-600 mb-1">Port Height</p>
+                              <p className="text-lg font-semibold text-gray-900">{design.port.height.cm.toFixed(2)} cm</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()
                   )}
                 </div>
               )}
