@@ -77,36 +77,38 @@ export default function DesignDetailPage() {
             </div>
           </div>
 
-          {/* Port Dimensions */}
-          <div>
-            <h2 className="text-lg font-semibold mb-4">Port Specifications</h2>
-            <div className="grid grid-cols-4 gap-3 text-sm text-gray-700">
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="text-xs text-gray-600">Min Dia (Rec)</p>
-                <p className="font-semibold">{design.dmin.rec.cm.toFixed(2)} cm</p>
-              </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="text-xs text-gray-600">Min Dia (Act)</p>
-                <p className="font-semibold">{design.dmin.actual.cm.toFixed(2)} cm</p>
-              </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="text-xs text-gray-600">Port Area</p>
-                <p className="font-semibold">{design.port.area.cm.toFixed(2)} cm²</p>
-              </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="text-xs text-gray-600">Port Length</p>
-                <p className="font-semibold">{design.lv.cm.toFixed(2)} cm</p>
-              </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="text-xs text-gray-600">Port Width</p>
-                <p className="font-semibold">{design.port.width.cm.toFixed(2)} cm</p>
-              </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="text-xs text-gray-600">Port Height</p>
-                <p className="font-semibold">{design.port.height.cm.toFixed(2)} cm</p>
+          {/* Port Dimensions - Only for Ported designs */}
+          {design.type === 'Ported' && (
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Port Specifications</h2>
+              <div className="grid grid-cols-4 gap-3 text-sm text-gray-700">
+                <div className="bg-gray-50 p-2 rounded">
+                  <p className="text-xs text-gray-600">Min Dia (Rec)</p>
+                  <p className="font-semibold">{design.dmin.rec.cm.toFixed(2)} cm</p>
+                </div>
+                <div className="bg-gray-50 p-2 rounded">
+                  <p className="text-xs text-gray-600">Min Dia (Act)</p>
+                  <p className="font-semibold">{design.dmin.actual.cm.toFixed(2)} cm</p>
+                </div>
+                <div className="bg-gray-50 p-2 rounded">
+                  <p className="text-xs text-gray-600">Port Area</p>
+                  <p className="font-semibold">{design.port.area.cm.toFixed(2)} cm²</p>
+                </div>
+                <div className="bg-gray-50 p-2 rounded">
+                  <p className="text-xs text-gray-600">Port Length</p>
+                  <p className="font-semibold">{design.lv.cm.toFixed(2)} cm</p>
+                </div>
+                <div className="bg-gray-50 p-2 rounded">
+                  <p className="text-xs text-gray-600">Port Width</p>
+                  <p className="font-semibold">{design.port.width.cm.toFixed(2)} cm</p>
+                </div>
+                <div className="bg-gray-50 p-2 rounded">
+                  <p className="text-xs text-gray-600">Port Height</p>
+                  <p className="font-semibold">{design.port.height.cm.toFixed(2)} cm</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

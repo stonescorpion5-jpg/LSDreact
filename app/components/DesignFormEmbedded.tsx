@@ -252,16 +252,18 @@ export function DesignFormEmbedded({
           />
         </label>
 
-        <label className="flex flex-col col-span-1">
-          <span className="text-sm text-gray-700"># of Ports</span>
-          <input
-            type="number"
-            step="1"
-            value={form.np}
-            onChange={(e) => handleChange('np', e.target.value)}
-            className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
-          />
-        </label>
+        {form.type === 'Ported' && (
+          <label className="flex flex-col col-span-1">
+            <span className="text-sm text-gray-700"># of Ports</span>
+            <input
+              type="number"
+              step="1"
+              value={form.np}
+              onChange={(e) => handleChange('np', e.target.value)}
+              className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
+            />
+          </label>
+        )}
 
         <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700">

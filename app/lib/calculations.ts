@@ -181,44 +181,60 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
   const ro = 1.18;
   const c = 345;
 
-  // Port diameter calculation (Dmin)
-  const dminRecCm =
-    design.fb && design.nod && driver.vd && design.np
-      ? Math.round(10000 * ((20.3 * Math.pow(Math.pow((driver.vd / 1000000) * design.nod, 2) / design.fb, 0.25)) / Math.sqrt(design.np))) / 100
-      : 0;
+  // Port calculations only for ported designs
+  let dminRecCm = 0;
+  let dminRecIn = 0;
+  let dminActualCm = 0;
+  let dminActualIn = 0;
+  let dminOuterCm = 0;
+  let dminOuterIn = 0;
+  let portAreaCm = 0;
+  let portAreaIn = 0;
+  let portWidthCm = 0;
+  let portWidthIn = 0;
+  let portHeightCm = 0;
+  let portHeightIn = 0;
 
-  const dminRecIn = dminRecCm ? Math.round(100 * (dminRecCm * 0.393701)) / 100 : 0;
+  if (design.type === 'Ported') {
+    // Port diameter calculation (Dmin)
+    dminRecCm =
+      design.fb && design.nod && driver.vd && design.np
+        ? Math.round(10000 * ((20.3 * Math.pow(Math.pow((driver.vd / 1000000) * design.nod, 2) / design.fb, 0.25)) / Math.sqrt(design.np))) / 100
+        : 0;
 
-  const dminActualCm = design.dmin?.actual?.cm || dminRecCm;
-  const dminActualIn = design.dmin?.actual?.in || dminRecIn;
+    dminRecIn = dminRecCm ? Math.round(100 * (dminRecCm * 0.393701)) / 100 : 0;
 
-  const dminOuterCm = dminActualCm;
-  const dminOuterIn = dminActualIn;
+    dminActualCm = design.dmin?.actual?.cm || dminRecCm;
+    dminActualIn = design.dmin?.actual?.in || dminRecIn;
 
-  // Port area
-  const portAreaCm =
-    dminActualCm > 0
-      ? Math.round(100 * (pi * Math.pow(dminActualCm / 2, 2))) / 100
-      : 0;
+    dminOuterCm = dminActualCm;
+    dminOuterIn = dminActualIn;
 
-  const portAreaIn =
-    dminActualIn > 0
-      ? Math.round(100 * (pi * Math.pow(dminActualIn / 2, 2))) / 100
-      : 0;
+    // Port area
+    portAreaCm =
+      dminActualCm > 0
+        ? Math.round(100 * (pi * Math.pow(dminActualCm / 2, 2))) / 100
+        : 0;
 
-  // Port dimensions
-  const portWidthCm = design.port?.width?.cm || driver.size * 2.54;
-  const portWidthIn = design.port?.width?.in || driver.size;
+    portAreaIn =
+      dminActualIn > 0
+        ? Math.round(100 * (pi * Math.pow(dminActualIn / 2, 2))) / 100
+        : 0;
 
-  const portHeightCm =
-    portWidthCm > 0
-      ? Math.round(100 * (portAreaCm / portWidthCm)) / 100
-      : 0;
+    // Port dimensions
+    portWidthCm = design.port?.width?.cm || driver.size * 2.54;
+    portWidthIn = design.port?.width?.in || driver.size;
 
-  const portHeightIn =
-    portWidthIn > 0
-      ? Math.round(100 * (portAreaIn / portWidthIn)) / 100
-      : 0;
+    portHeightCm =
+      portWidthCm > 0
+        ? Math.round(100 * (portAreaCm / portWidthCm)) / 100
+        : 0;
+
+    portHeightIn =
+      portWidthIn > 0
+        ? Math.round(100 * (portAreaIn / portWidthIn)) / 100
+        : 0;
+  }
 
   // Recalculate TS based on multi-driver setup
   const designVd = design.nod && driver.sd && driver.xmax
@@ -247,26 +263,57 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
     ? designSpl + 10 * Math.log10(driver.rms * design.nod)
     : 0;
 
-  // Port length calculation (lv)
-  const lvCm = design.fb && design.vb && (design.np || 1) && dminActualCm > 0
-    ? (23562.5 * Math.pow(dminActualCm, 2) * (design.np || 1)) / (design.vb * Math.pow(design.fb, 2)) - (dminActualCm * 0.732)
-    : 0;
+  // Port length calculation (lv) - only for ported designs
+  let lvCm = 0;
+  let lvIn = 0;
+  let lvCmRounded = 0;
+  
+  if (design.type === 'Ported') {
+    lvCm = design.fb && design.vb && (design.np || 1) && dminActualCm > 0
+      ? (23562.5 * Math.pow(dminActualCm, 2) * (design.np || 1)) / (design.vb * Math.pow(design.fb, 2)) - (dminActualCm * 0.732)
+      : 0;
 
-  const lvIn = lvCm ? Math.round(100 * (lvCm * 0.393701)) / 100 : 0;
-  const lvCmRounded = lvCm ? Math.round(100 * lvCm) / 100 : 0;
+    lvIn = lvCm ? Math.round(100 * (lvCm * 0.393701)) / 100 : 0;
+    lvCmRounded = lvCm ? Math.round(100 * lvCm) / 100 : 0;
+  }
 
   // Transfer function coefficients for SPL curve
+  // For sealed boxes: fb is the frequency at which we calculate (typically Fb from driver)
+  // For ported boxes: fb is the tuning frequency
   const A = design.fb && driver.fs ? Math.pow(design.fb / driver.fs, 2) : 0;
-  const B = design.fb && driver.fs && driver.qts
-    ? A / driver.qts + design.fb / (7 * driver.fs)
-    : 0;
-  const C = design.fb && design.vb && design.nod && driver.vas && driver.fs && driver.qts
-    ? 1 + A + (driver.vas * design.nod) / design.vb + design.fb / (driver.fs * driver.qts * 7)
-    : 0;
-  const D = design.fb && driver.fs && driver.qts
-    ? 1 / driver.qts + design.fb / (driver.fs * 7)
-    : 0;
-  const E = A ? (97 / 49) * A : 0;
+  
+  let B = 0;
+  let C = 0;
+  let D = 0;
+  let E = 0;
+
+  if (design.type === 'Ported') {
+    // Ported enclosure transfer function
+    B = design.fb && driver.fs && driver.qts
+      ? A / driver.qts + design.fb / (7 * driver.fs)
+      : 0;
+    C = design.fb && design.vb && design.nod && driver.vas && driver.fs && driver.qts
+      ? 1 + A + (driver.vas * design.nod) / design.vb + design.fb / (driver.fs * driver.qts * 7)
+      : 0;
+    D = design.fb && driver.fs && driver.qts
+      ? 1 / driver.qts + design.fb / (driver.fs * 7)
+      : 0;
+    E = A ? (97 / 49) * A : 0;
+  } else {
+    // Sealed enclosure transfer function
+    // For sealed, fb is typically recSealedFb from driver
+    // C coefficient uses volume instead of tuning frequency
+    B = design.fb && driver.fs && driver.qts
+      ? A / driver.qts + design.fb / (driver.fs * driver.qts * 7)
+      : 0;
+    C = design.vb && design.nod && driver.vas && driver.fs && driver.qts
+      ? 1 + A + (driver.vas * design.nod) / design.vb
+      : 0;
+    D = design.fb && driver.fs && driver.qts
+      ? 1 / driver.qts + design.fb / (driver.fs * driver.qts * 7)
+      : 0;
+    E = A ? (97 / 49) * A : 0;
+  }
 
   // Generate SPL curve
   const splData: Array<{ x: number; y: number }> = [];
