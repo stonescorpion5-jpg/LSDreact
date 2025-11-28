@@ -33,9 +33,20 @@ export function DesignForm({
         if (driver) {
           const newVb = updated.type === 'Ported' ? (driver.recPortedVb || 50) : (driver.recSealedVb || 50);
           const newFb = updated.type === 'Ported' ? (driver.recPortedFb || 45) : (driver.recSealedFb || 45);
-          console.log('Updated volumes:', { newVb, newFb, driver: driver.brand });
+          console.log('handleChange volumes update:', { 
+            field: k, 
+            oldVb: s.vb, 
+            newVb, 
+            oldFb: s.fb, 
+            newFb,
+            driver: driver.brandModel, 
+            hasRecPortedVb: driver.recPortedVb,
+            hasRecSealedVb: driver.recSealedVb,
+          });
           updated.vb = newVb;
           updated.fb = newFb;
+        } else {
+          console.log('handleChange: driver not found for id', updated.driverId, 'available ids:', drivers.map(d => d.id));
         }
       }
       
@@ -59,6 +70,8 @@ export function DesignForm({
       fb = type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
     }
 
+    console.log('DesignForm init:', { driverId, type, driver: driver?.brandModel, vb, fb, hasRecPortedVb: !!driver?.recPortedVb, hasRecSealedVb: !!driver?.recSealedVb });
+
     return {
       driverId,
       type,
@@ -69,12 +82,16 @@ export function DesignForm({
     };
   });
 
-  // Sync driverId when drivers array changes
+  // Sync driverId and volumes when drivers array changes (ensures we have latest driver data)
   useEffect(() => {
     setForm((s) => {
       // If no driverId set yet and drivers are available, use first driver
       if (!s.driverId && drivers.length > 0) {
-        return { ...s, driverId: drivers[0].id };
+        const driver = drivers[0];
+        const newVb = s.type === 'Ported' ? (driver?.recPortedVb || 50) : (driver?.recSealedVb || 50);
+        const newFb = s.type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
+        console.log('DesignForm useEffect sync:', { driverId: driver.id, vb: newVb, fb: newFb });
+        return { ...s, driverId: driver.id, vb: newVb, fb: newFb };
       }
       return s;
     });
@@ -222,9 +239,9 @@ export function DesignForm({
             <span className="text-sm text-gray-700">Vb (L)</span>
             <input
               type="number"
-              step="1"
-              value={form.np}
-              onChange={(e) => handleChange('np', e.target.value)}
+              step="0.1"
+              value={form.vb}
+              onChange={(e) => handleChange('vb', e.target.value)}
               className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
             />
           </label>
@@ -244,8 +261,9 @@ export function DesignForm({
             <span className="text-sm text-gray-700"># of Drivers</span>
             <input
               type="number"
+              step="1"
               value={form.nod}
-              onChange={(e) => onChange('nod', e.target.value)}
+              onChange={(e) => handleChange('nod', e.target.value)}
               className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
             />
           </label>
@@ -254,8 +272,9 @@ export function DesignForm({
             <span className="text-sm text-gray-700"># of Ports</span>
             <input
               type="number"
+              step="1"
               value={form.np}
-              onChange={(e) => onChange('np', e.target.value)}
+              onChange={(e) => handleChange('np', e.target.value)}
               className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
             />
           </label>

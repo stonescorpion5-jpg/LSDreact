@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useAppStore } from '../lib/store';
 import { Design } from '../lib/types';
 
@@ -13,34 +13,90 @@ export function DesignFormEmbedded({
 }) {
   const { addDesign, editDesign, drivers } = useAppStore();
 
-  const [form, setForm] = useState(() => ({
-    driverId: existing?.driverId || drivers[0]?.id || '',
-    type: (existing?.type || 'Ported') as 'Ported' | 'Sealed',
-    vb: existing?.vb || 50,
-    fb: existing?.fb || 45,
-    nod: existing?.nod || 1,
-    np: existing?.np || 1,
-  }));
+  const [form, setForm] = useState(() => {
+    const driverId = existing?.driverId || drivers[0]?.id || '';
+    const type = (existing?.type || 'Ported') as 'Ported' | 'Sealed';
+    const driver = drivers.find((d) => d.id === driverId);
+    
+    // Use recommended volumes from driver based on type if not editing
+    let vb = existing?.vb;
+    if (!vb) {
+      vb = type === 'Ported' ? (driver?.recPortedVb || 50) : (driver?.recSealedVb || 50);
+    }
+    
+    let fb = existing?.fb;
+    if (!fb) {
+      fb = type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
+    }
 
+    console.log('DesignFormEmbedded init:', { driverId, type, driver: driver?.brandModel, vb, fb });
+
+    return {
+      driverId,
+      type,
+      vb,
+      fb,
+      nod: existing?.nod || 1,
+      np: existing?.np || 1,
+    };
+  });
+
+  const handleChange = useCallback((k: keyof typeof form, v: string | number) => {
+    let newValue: any = v;
+    
+    // Only convert to number for numeric fields, keep strings for driverId and type
+    if (k !== 'type' && k !== 'driverId') {
+      newValue = typeof v === 'string' ? parseFloat(v) || 0 : v;
+    }
+    
+    setForm((s) => {
+      const updated = {
+        ...s,
+        [k]: newValue,
+      };
+      
+      // If driver or type changed, update Vb and Fb with recommended values (for new designs only)
+      if (!existing && (k === 'driverId' || k === 'type')) {
+        const driver = drivers.find((d) => d.id === updated.driverId);
+        if (driver) {
+          const newVb = updated.type === 'Ported' ? (driver.recPortedVb || 50) : (driver.recSealedVb || 50);
+          const newFb = updated.type === 'Ported' ? (driver.recPortedFb || 45) : (driver.recSealedFb || 45);
+          console.log('handleChange volumes update:', { 
+            field: k, 
+            oldVb: s.vb, 
+            newVb, 
+            oldFb: s.fb, 
+            newFb,
+            driver: driver.brandModel, 
+            hasRecPortedVb: driver.recPortedVb,
+            hasRecSealedVb: driver.recSealedVb,
+          });
+          updated.vb = newVb;
+          updated.fb = newFb;
+        } else {
+          console.log('handleChange: driver not found for id', updated.driverId);
+        }
+      }
+      
+      return updated;
+    });
+  }, [drivers, existing]);
+
+  // Sync volumes when drivers load (ensures we have driver data with recommended values)
   useEffect(() => {
-    if (existing) {
-      setForm({
-        driverId: existing.driverId || drivers[0]?.id || '',
-        type: existing.type || 'Ported',
-        vb: existing.vb || 50,
-        fb: existing.fb || 45,
-        nod: existing.nod || 1,
-        np: existing.np || 1,
+    if (drivers.length > 0 && !existing) {
+      setForm((s) => {
+        const driver = drivers.find((d) => d.id === s.driverId);
+        if (driver) {
+          const newVb = s.type === 'Ported' ? (driver?.recPortedVb || 50) : (driver?.recSealedVb || 50);
+          const newFb = s.type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
+          console.log('DesignFormEmbedded useEffect sync:', { driverId: driver.id, vb: newVb, fb: newFb });
+          return { ...s, vb: newVb, fb: newFb };
+        }
+        return s;
       });
     }
-  }, [existing, drivers]);
-
-  function onChange<K extends keyof typeof form>(k: K, v: string | number) {
-    setForm((s) => ({
-      ...s,
-      [k]: typeof v === 'string' && k !== 'type' ? parseFloat(v) || 0 : v,
-    }));
-  }
+  }, [drivers.length, existing]);
 
   function submit(e?: React.FormEvent) {
     if (e) e.preventDefault();
@@ -91,7 +147,7 @@ export function DesignFormEmbedded({
           <span className="text-sm text-gray-700">Driver</span>
           <select
             value={form.driverId}
-            onChange={(e) => onChange('driverId', e.target.value)}
+            onChange={(e) => handleChange('driverId', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           >
             {drivers.map((d) => (
@@ -111,7 +167,7 @@ export function DesignFormEmbedded({
           <span className="text-sm text-gray-700">Type</span>
           <select
             value={form.type}
-            onChange={(e) => onChange('type', e.target.value)}
+            onChange={(e) => handleChange('type', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           >
             <option value="Ported">Ported</option>
@@ -125,7 +181,7 @@ export function DesignFormEmbedded({
             type="number"
             step="0.1"
             value={form.vb}
-            onChange={(e) => onChange('vb', e.target.value)}
+            onChange={(e) => handleChange('vb', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           />
         </label>
@@ -136,7 +192,7 @@ export function DesignFormEmbedded({
             type="number"
             step="0.1"
             value={form.fb}
-            onChange={(e) => onChange('fb', e.target.value)}
+            onChange={(e) => handleChange('fb', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           />
         </label>
@@ -145,8 +201,9 @@ export function DesignFormEmbedded({
           <span className="text-sm text-gray-700"># of Drivers</span>
           <input
             type="number"
+            step="1"
             value={form.nod}
-            onChange={(e) => onChange('nod', e.target.value)}
+            onChange={(e) => handleChange('nod', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           />
         </label>
@@ -155,8 +212,9 @@ export function DesignFormEmbedded({
           <span className="text-sm text-gray-700"># of Ports</span>
           <input
             type="number"
+            step="1"
             value={form.np}
-            onChange={(e) => onChange('np', e.target.value)}
+            onChange={(e) => handleChange('np', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           />
         </label>
