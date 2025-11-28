@@ -58,7 +58,7 @@ export default function NewDesignPage() {
 
       {/* Split Layout: Design buttons on left (1/4), chart on right (3/4) */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-screen">
-        {/* Left Column: Design Selection Buttons (1/4 width on xl and up) */}
+        {/* Left Column: Design Selection Checkboxes (1/4 width on xl and up) */}
         <div>
           <div className="bg-white rounded-lg p-6 text-gray-900 border">
             <h2 className="text-lg font-semibold mb-4 text-gray-900">Designs</h2>
@@ -66,22 +66,25 @@ export default function NewDesignPage() {
             {designs.length === 0 ? (
               <p className="text-sm text-gray-600">No designs yet. Create one to compare.</p>
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 {designs.map((design) => (
-                  <button
+                  <label
                     key={design.id}
-                    onClick={() => toggleDesign(design.id)}
-                    className={`p-3 rounded border-2 text-left transition-colors ${
-                      selectedDesigns.has(design.id)
-                        ? 'border-blue-600 bg-blue-50 text-blue-900'
-                        : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
-                    }`}
+                    className="flex items-start gap-3 p-3 rounded border border-gray-300 hover:bg-gray-50 cursor-pointer transition-colors"
                   >
-                    <div className="font-medium">{design.name}</div>
-                    <div className="text-xs text-gray-600">
-                      {drivers.find((d) => d.id === design.driverId)?.brandModel}
+                    <input
+                      type="checkbox"
+                      checked={selectedDesigns.has(design.id)}
+                      onChange={() => toggleDesign(design.id)}
+                      className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900">{design.name}</div>
+                      <div className="text-xs text-gray-600">
+                        {drivers.find((d) => d.id === design.driverId)?.brandModel}
+                      </div>
                     </div>
-                  </button>
+                  </label>
                 ))}
               </div>
             )}
