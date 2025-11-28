@@ -92,12 +92,6 @@ export default function DesignPage() {
                           onClick={() => {
                             setFocusedDesignId(design.id);
                             setActiveTab('design');
-                            // Auto-select if not already selected
-                            if (!selectedDesigns.has(design.id)) {
-                              const newSelected = new Set(selectedDesigns);
-                              newSelected.add(design.id);
-                              setSelectedDesigns(newSelected);
-                            }
                           }}
                         >
                           <div className="font-medium text-gray-900">{design.name}</div>
@@ -110,12 +104,6 @@ export default function DesignPage() {
                         onClick={() => {
                           setFocusedDesignId(design.id);
                           setActiveTab('design');
-                          // Auto-select if not already selected
-                          if (!selectedDesigns.has(design.id)) {
-                            const newSelected = new Set(selectedDesigns);
-                            newSelected.add(design.id);
-                            setSelectedDesigns(newSelected);
-                          }
                         }}
                         className="flex-shrink-0 p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-100 rounded transition-colors"
                         title="Edit design"
