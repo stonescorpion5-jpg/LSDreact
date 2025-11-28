@@ -79,11 +79,22 @@ export function ResponseCurve({ data, datasets: providedDatasets }: ResponseCurv
         },
         min: 10,
         max: 500,
+        grid: {
+          display: true,
+          drawBorder: true,
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
       },
       y: {
         title: {
           display: true,
           text: 'SPL (dB)',
+        },
+        min: 60,
+        grid: {
+          display: true,
+          drawBorder: true,
+          color: 'rgba(0, 0, 0, 0.1)',
         },
       },
     },
