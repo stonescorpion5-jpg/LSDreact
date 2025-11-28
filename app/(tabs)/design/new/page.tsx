@@ -66,42 +66,53 @@ export default function NewDesignPage() {
       {/* Split Layout: Design buttons on left (1/4), chart on right (3/4) */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-screen">
         {/* Left Column: Design Selection Checkboxes (1/4 width on xl and up) */}
-        <div>
-          <div className="bg-white rounded-lg p-6 text-gray-900 border">
+        <div className="flex flex-col gap-4">
+          <div className="bg-white rounded-lg p-6 text-gray-900 border flex-1 flex flex-col">
             <h2 className="text-lg font-semibold mb-4 text-gray-900">Designs</h2>
             
-            {designs.length === 0 ? (
-              <p className="text-sm text-gray-600">No designs yet. Create one to compare.</p>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {designs.map((design) => (
-                  <div
-                    key={design.id}
-                    className={`flex items-start gap-3 p-3 rounded border transition-colors ${
-                      focusedDesignId === design.id
-                        ? 'border-blue-600 bg-blue-50'
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedDesigns.has(design.id)}
-                      onChange={() => {
-                        toggleDesign(design.id);
-                        setFocusedDesignId(design.id);
-                      }}
-                      className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <div className="flex-1 min-w-0 pointer-events-none select-none">
-                      <div className="font-medium text-gray-900">{design.name}</div>
-                      <div className="text-xs text-gray-600">
-                        {drivers.find((d) => d.id === design.driverId)?.brandModel}
+            <div className="flex-1">
+              {designs.length === 0 ? (
+                <p className="text-sm text-gray-600">No designs yet. Create one to compare.</p>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {designs.map((design) => (
+                    <div
+                      key={design.id}
+                      className={`flex items-start gap-3 p-3 rounded border transition-colors ${
+                        focusedDesignId === design.id
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedDesigns.has(design.id)}
+                        onChange={() => {
+                          toggleDesign(design.id);
+                          setFocusedDesignId(design.id);
+                        }}
+                        className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      />
+                      <div className="flex-1 min-w-0 pointer-events-none select-none">
+                        <div className="font-medium text-gray-900">{design.name}</div>
+                        <div className="text-xs text-gray-600">
+                          {drivers.find((d) => d.id === design.driverId)?.brandModel}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Plus Button for New Design */}
+            <button
+              onClick={() => setActiveTab('design')}
+              className="mt-4 w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <span className="text-lg">+</span>
+              <span>New Design</span>
+            </button>
           </div>
         </div>
 
