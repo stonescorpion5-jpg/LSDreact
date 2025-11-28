@@ -33,15 +33,15 @@ export default function DesignDetailPage() {
         </Link>
       </div>
 
-      {/* Split Layout: Form on left, calculations on right */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column: Edit Form */}
+      {/* Split Layout: Form on left (1/3), calculations on right (2/3) */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Left Column: Edit Form (1/3 width on xl and up) */}
         <div>
           <DesignFormEmbedded existing={design} />
         </div>
 
-        {/* Right Column: Chart and Specs Below */}
-        <div className="space-y-6">
+        {/* Right Column: Chart and Specs Below (2/3 width on xl and up) */}
+        <div className="space-y-6 xl:col-span-2">
           {/* SPL Response Curve */}
           <div className="border p-4 rounded-lg">
             <h2 className="text-lg font-semibold mb-4">SPL Response</h2>
