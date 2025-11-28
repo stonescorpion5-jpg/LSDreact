@@ -64,7 +64,7 @@ export function ResponseCurve({ data }: ResponseCurveProps) {
   };
 
   return (
-    <div className="w-full h-64">
+    <div className="w-full h-full">
       <Line options={options} data={chartData} />
     </div>
   );
