@@ -147,8 +147,8 @@ export default function DesignPage() {
             </div>
           </div>
 
-          {/* Tabbed Content Section - Full Width */}
-          <div className="border rounded-lg overflow-hidden">
+          {/* Tabbed Content Section */}
+          <div className="overflow-hidden">
             {/* Tab Navigation */}
             <div className="flex border-b bg-gray-50">
               <button
@@ -188,7 +188,7 @@ export default function DesignPage() {
               {/* Design Tab */}
               {activeTab === 'design' && (
                 <div className="space-y-6">
-                  <div className="max-w-2xl">
+                  <div className="w-full">
                     {focusedDesignId ? (
                       (() => {
                         const design = designs.find((d) => d.id === focusedDesignId);
