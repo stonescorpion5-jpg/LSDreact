@@ -59,6 +59,10 @@ export default function DriverPage() {
                     <p className="text-gray-500">{driver.recSealedF3?.toFixed(1)}Hz</p>
                   </div>
                   <div>
+                    <p className="text-xs text-gray-400 font-semibold">Rec Sealed Fs</p>
+                    <p className="text-gray-500">{driver.recSealedFs?.toFixed(1)}Hz</p>
+                  </div>
+                  <div>
                     <p className="text-xs text-gray-400 font-semibold">Rec Port Vb</p>
                     <p className="text-gray-500">{driver.recPortedVb?.toFixed(1)}L</p>
                   </div>

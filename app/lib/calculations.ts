@@ -112,6 +112,13 @@ export function calculateDriverParameters(driver: Partial<Driver>): Partial<Driv
       ? Math.round(100 * (Math.pow(driver.vas / recSealedVb, 0.31) * driver.fs)) / 100
       : 0;
 
+  // Resonant frequency in sealed enclosure
+  // Fs_box = Fs * sqrt(1 + Vas/Vb)
+  const recSealedFs =
+    driver.fs && recSealedVb && driver.vas
+      ? Math.round(100 * (driver.fs * Math.sqrt(1 + driver.vas / recSealedVb))) / 100
+      : 0;
+
   // EBP - Efficiency bandwidth product
   const ebp = driver.fs && driver.qes ? driver.fs / driver.qes : 0;
 
@@ -148,6 +155,7 @@ export function calculateDriverParameters(driver: Partial<Driver>): Partial<Driv
     recSealedVb,
     recSealedFb,
     recSealedF3,
+    recSealedFs,
     ebp,
     par,
     per,

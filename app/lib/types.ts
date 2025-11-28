@@ -28,6 +28,7 @@ export interface Driver {
   recSealedVb?: number;
   recSealedFb?: number;
   recSealedF3?: number;
+  recSealedFs?: number;
   spl?: number;
   vd?: number;
 }

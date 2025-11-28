@@ -75,6 +75,7 @@ export function DriverImportModal({ onClose }: { onClose: () => void }) {
       recSealedVb: Number(data.recSealedVb || data.RecSealedVb || 20),
       recSealedFb: Number(data.recSealedFb || data.RecSealedFb || 0),
       recSealedF3: Number(data.recSealedF3 || data.RecSealedF3 || 0),
+      recSealedFs: Number(data.recSealedFs || data.RecSealedFs || 0),
       spl: Number(data.spl || data.Spl || 0),
     };
 
@@ -172,6 +173,7 @@ export function DriverImportModal({ onClose }: { onClose: () => void }) {
                 <p>• recPortedF3</p>
                 <p>• recSealedVb</p>
                 <p>• recSealedF3</p>
+                <p>• recSealedFs</p>
                 <p>• And more...</p>
               </div>
             </div>
