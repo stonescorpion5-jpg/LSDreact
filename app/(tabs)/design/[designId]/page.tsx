@@ -34,17 +34,17 @@ export default function DesignDetailPage() {
         <h1 className="text-3xl font-bold text-gray-900 mt-2">{design.name}</h1>
       </div>
 
-      {/* Split Layout: Form on left (1/4), calculations on right (3/4) */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-screen">
-        {/* Left Column: Edit Form (1/4 width on xl and up) */}
+      {/* Split Layout: Form on left (1/2), calculations on right (1/2) */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 min-h-screen">
+        {/* Left Column: Edit Form (1/2 width on xl and up) */}
         <div>
           <DesignFormEmbedded existing={design} />
         </div>
 
-        {/* Right Column: Chart and Specs Below (3/4 width on xl and up) */}
-        <div className="flex flex-col space-y-6 xl:col-span-3 min-h-96">
+        {/* Right Column: Chart and Specs Below (1/2 width on xl and up) */}
+        <div className="flex flex-col space-y-6 xl:col-span-1 min-h-96">
           {/* SPL Response Curve - Grows to fill available space */}
-          <div className="border p-4 rounded-lg flex flex-col flex-grow min-h-96">
+          <div className="flex flex-col flex-grow min-h-96">
             <h2 className="text-lg font-semibold mb-4">SPL Response</h2>
             <div className="flex-grow flex items-center justify-center">
               {design.splData?.dataset && design.splData.dataset.length > 0 ? (
@@ -56,7 +56,7 @@ export default function DesignDetailPage() {
           </div>
 
           {/* Box Dimensions */}
-          <div className="border p-4 rounded-lg">
+          <div>
             <h2 className="text-lg font-semibold mb-4">Box Dimensions</h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-gray-50 p-3 rounded">
@@ -78,7 +78,7 @@ export default function DesignDetailPage() {
           </div>
 
           {/* Port Dimensions */}
-          <div className="border p-4 rounded-lg">
+          <div>
             <h2 className="text-lg font-semibold mb-4">Port Specifications</h2>
             <div className="grid grid-cols-4 gap-3 text-sm text-gray-700">
               <div className="bg-gray-50 p-2 rounded">

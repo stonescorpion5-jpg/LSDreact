@@ -57,9 +57,9 @@ export default function DesignPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Split Layout: Design buttons on left (1/2), chart and tabs on right (1/2) */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 min-h-screen">
-        {/* Left Column: Design Selection Checkboxes (1/2 width on xl and up) */}
+      {/* Split Layout: Design buttons on left (1/4), chart on right (3/4) */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-screen">
+        {/* Left Column: Design Selection Checkboxes (1/4 width on xl and up) */}
         <div className="flex flex-col gap-4">
           <div className="bg-white rounded-lg p-6 text-gray-900 border flex-1 flex flex-col">
             <h2 className="text-lg font-semibold mb-4 text-gray-900">Designs</h2>
@@ -133,10 +133,10 @@ export default function DesignPage() {
           </div>
         </div>
 
-        {/* Right Column: Chart and Tabbed Content (1/2 width on xl and up) */}
-        <div className="flex flex-col space-y-6 xl:col-span-1 min-h-96">
+        {/* Right Column: Chart and Tabbed Content (3/4 width on xl and up) */}
+        <div className="flex flex-col space-y-6 xl:col-span-3 min-h-96">
           {/* SPL Response Curve */}
-          <div className="flex flex-col flex-grow min-h-96">
+          <div className="border p-4 rounded-lg flex flex-col flex-grow min-h-96">
             <h2 className="text-lg font-semibold mb-4">SPL Response Comparison</h2>
             <div className="flex-grow flex items-center justify-center">
               {datasets.length > 0 ? (
