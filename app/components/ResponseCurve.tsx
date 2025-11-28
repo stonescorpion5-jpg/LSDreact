@@ -82,7 +82,7 @@ export function ResponseCurve({ data, datasets: providedDatasets }: ResponseCurv
         grid: {
           display: true,
           drawBorder: true,
-          color: 'rgba(0, 0, 0, 0.1)',
+          color: 'rgb(255, 255, 255)',
         },
       },
       y: {
@@ -90,11 +90,11 @@ export function ResponseCurve({ data, datasets: providedDatasets }: ResponseCurv
           display: true,
           text: 'SPL (dB)',
         },
-        min: 60,
+        min: 80,
         grid: {
           display: true,
           drawBorder: true,
-          color: 'rgba(0, 0, 0, 0.1)',
+          color: 'rgb(255, 255, 255)',
         },
       },
     },
