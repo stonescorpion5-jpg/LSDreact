@@ -206,7 +206,14 @@ export function DesignFormEmbedded({
         </label>
 
         <label className="flex flex-col col-span-1">
-          <span className="text-sm text-gray-700">Vb (L)</span>
+          <span className="text-sm text-gray-700">
+            Vb (L)
+            {selectedDriver && (
+              <span className="text-xs text-gray-500 ml-1">
+                (Rec: {form.type === 'Ported' ? selectedDriver.recPortedVb : selectedDriver.recSealedVb}L)
+              </span>
+            )}
+          </span>
           <input
             type="number"
             step="0.1"
