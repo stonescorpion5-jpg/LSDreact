@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../../../lib/store';
+import { useUnitSystem } from '../../../../lib/useUnitSystem';
 import { ResponseCurve } from '../../../components/ResponseCurve';
 import { DesignFormEmbedded } from '../../../components/DesignFormEmbedded';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
 export default function DesignDetailPage() {
-  const [unitSystem, setUnitSystem] = useState<'cm' | 'in'>('cm');
+  const { unitSystem, setUnitSystem, isHydrated } = useUnitSystem();
   const [boxWidth, setBoxWidth] = useState<string>('');
   const [boxHeight, setBoxHeight] = useState<string>('');
   

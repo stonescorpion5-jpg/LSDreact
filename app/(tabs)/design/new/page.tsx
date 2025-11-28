@@ -1,6 +1,7 @@
 'use client';
 
 import { useAppStore } from '../../../lib/store';
+import { useUnitSystem } from '../../../../lib/useUnitSystem';
 import Link from 'next/link';
 import { DesignFormEmbedded } from '../../../components/DesignFormEmbedded';
 import { ResponseCurve } from '../../../components/ResponseCurve';
@@ -10,10 +11,10 @@ type TabType = 'design' | 'box' | 'port';
 
 export default function NewDesignPage() {
   const { designs, drivers, editDesign, removeDesign } = useAppStore();
+  const { unitSystem, setUnitSystem, isHydrated } = useUnitSystem();
   const [selectedDesigns, setSelectedDesigns] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
-  const [unitSystem, setUnitSystem] = useState<'cm' | 'in'>('cm');
   
   // Local state for box inputs to prevent re-render issues during typing
   const [boxWidth, setBoxWidth] = useState<string>('');
@@ -75,6 +76,18 @@ export default function NewDesignPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Page Header with Unit Toggle */}
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Comparison</h1>
+        <button
+          onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
+          className="px-6 py-3 text-lg font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg border-2 border-blue-700"
+          title="Switch between centimeters and inches"
+        >
+          {unitSystem === 'cm' ? '📏 CM' : '📏 IN'}
+        </button>
+      </div>
+
       <div className="mb-6">
         <Link href="/design" className="text-blue-600 underline">
           ← Back to Designs
