@@ -210,7 +210,7 @@ export function DesignFormEmbedded({
             Vb (L)
             {selectedDriver && (
               <span className="text-xs text-gray-500 ml-1">
-                (Rec: {form.type === 'Ported' ? selectedDriver.recPortedVb : selectedDriver.recSealedVb}L)
+                (Rec: {((form.type === 'Ported' ? (selectedDriver.recPortedVb || 50) : (selectedDriver.recSealedVb || 20)) / form.nod).toFixed(1)}L{form.nod > 1 ? ` × ${form.nod}` : ''})
               </span>
             )}
           </span>
