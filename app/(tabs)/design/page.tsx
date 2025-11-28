@@ -71,18 +71,6 @@ export default function DesignPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Page Header with Unit Toggle */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Designs</h1>
-        <button
-          onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
-          className="px-6 py-3 text-lg font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg border-2 border-blue-700"
-          title="Switch between centimeters and inches"
-        >
-          {unitSystem === 'cm' ? '📏 CM' : '📏 IN'}
-        </button>
-      </div>
-
       {/* Split Layout: Design buttons on left (1/4), chart on right (3/4) */}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-screen">
         {/* Left Column: Design Selection Checkboxes (1/4 width on xl and up) */}
@@ -215,7 +203,8 @@ export default function DesignPage() {
               <div className="ml-auto flex items-center border-l">
                 <button
                   onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
-                  className="px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  className="px-3 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  title="Toggle cm/in"
                 >
                   {unitSystem === 'cm' ? 'cm' : 'in'}
                 </button>

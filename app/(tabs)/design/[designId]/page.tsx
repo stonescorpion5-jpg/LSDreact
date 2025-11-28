@@ -87,8 +87,8 @@ export default function DesignDetailPage() {
               <h2 className="text-lg font-semibold">Box Dimensions</h2>
               <button
                 onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
-                className="px-3 py-1 text-sm font-medium text-gray-700 border rounded hover:bg-gray-100 transition-colors"
-                title="Toggle between cm and inches"
+                className="px-3 py-1 text-sm font-medium text-gray-400 border rounded hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                title="Toggle cm/in"
               >
                 {unitSystem}
               </button>
