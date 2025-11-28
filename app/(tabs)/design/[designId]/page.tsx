@@ -32,6 +32,16 @@ export default function DesignDetailPage() {
           ← Back to Designs
         </Link>
         <h1 className="text-3xl font-bold text-gray-900 mt-2">{design.name}</h1>
+        <div className="flex gap-6 mt-3 text-sm text-gray-600">
+          <div>
+            <span className="font-semibold">Driver Config:</span> {design.nod} driver{design.nod !== 1 ? 's' : ''}
+          </div>
+          {design.type === 'Ported' && (
+            <div>
+              <span className="font-semibold">Port Config:</span> {design.np} port{design.np !== 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Split Layout: Form on left (1/2), calculations on right (1/2) */}

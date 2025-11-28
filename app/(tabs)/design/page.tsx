@@ -101,6 +101,9 @@ export default function DesignPage() {
                           <div className="text-xs text-gray-600 mt-1">
                             Vb: {design.vb}L &nbsp; F3: {design.fb}Hz
                           </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {design.nod}× driver{design.nod !== 1 ? 's' : ''}{design.type === 'Ported' ? `, ${design.np}× port${design.np !== 1 ? 's' : ''}` : ''}
+                          </div>
                         </div>
                       </div>
                       <button
