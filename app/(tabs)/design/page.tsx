@@ -5,7 +5,7 @@ import { useUnitSystem } from '../../../lib/useUnitSystem';
 import Link from 'next/link';
 import { DesignFormEmbedded } from '../../components/DesignFormEmbedded';
 import { ResponseCurve } from '../../components/ResponseCurve';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 
 type TabType = 'design' | 'box' | 'port';
 
@@ -18,6 +18,18 @@ export default function DesignPage() {
   // Local state for box inputs to prevent re-render issues during typing
   const [boxWidth, setBoxWidth] = useState<string>('');
   const [boxHeight, setBoxHeight] = useState<string>('');
+  
+  // Refs for debouncing store updates (500ms delay)
+  const widthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const heightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (widthTimeoutRef.current) clearTimeout(widthTimeoutRef.current);
+      if (heightTimeoutRef.current) clearTimeout(heightTimeoutRef.current);
+    };
+  }, []);
 
   // Load focused design from localStorage on mount
   useEffect(() => {
@@ -271,18 +283,25 @@ export default function DesignPage() {
                                 value={boxWidth}
                                 onChange={(e) => {
                                   setBoxWidth(e.target.value);
-                                  const inputValue = parseFloat(e.target.value);
-                                  if (!isNaN(inputValue)) {
-                                    const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                                    const newWidthIn = newWidth / 2.54;
-                                    editDesign({
-                                      ...design,
-                                      box: {
-                                        ...design.box,
-                                        width: { cm: newWidth, in: newWidthIn }
-                                      }
-                                    });
+                                  // Clear existing timeout
+                                  if (widthTimeoutRef.current) {
+                                    clearTimeout(widthTimeoutRef.current);
                                   }
+                                  // Set new timeout to update store after 500ms of inactivity
+                                  widthTimeoutRef.current = setTimeout(() => {
+                                    const inputValue = parseFloat(e.target.value);
+                                    if (!isNaN(inputValue)) {
+                                      const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                                      const newWidthIn = newWidth / 2.54;
+                                      editDesign({
+                                        ...design,
+                                        box: {
+                                          ...design.box,
+                                          width: { cm: newWidth, in: newWidthIn }
+                                        }
+                                      });
+                                    }
+                                  }, 500);
                                 }}
                                 className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
                               />
@@ -296,18 +315,25 @@ export default function DesignPage() {
                                 value={boxHeight}
                                 onChange={(e) => {
                                   setBoxHeight(e.target.value);
-                                  const inputValue = parseFloat(e.target.value);
-                                  if (!isNaN(inputValue)) {
-                                    const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                                    const newHeightIn = newHeight / 2.54;
-                                    editDesign({
-                                      ...design,
-                                      box: {
-                                        ...design.box,
-                                        height: { cm: newHeight, in: newHeightIn }
-                                      }
-                                    });
+                                  // Clear existing timeout
+                                  if (heightTimeoutRef.current) {
+                                    clearTimeout(heightTimeoutRef.current);
                                   }
+                                  // Set new timeout to update store after 500ms of inactivity
+                                  heightTimeoutRef.current = setTimeout(() => {
+                                    const inputValue = parseFloat(e.target.value);
+                                    if (!isNaN(inputValue)) {
+                                      const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                                      const newHeightIn = newHeight / 2.54;
+                                      editDesign({
+                                        ...design,
+                                        box: {
+                                          ...design.box,
+                                          height: { cm: newHeight, in: newHeightIn }
+                                        }
+                                      });
+                                    }
+                                  }, 500);
                                 }}
                                 className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
                               />

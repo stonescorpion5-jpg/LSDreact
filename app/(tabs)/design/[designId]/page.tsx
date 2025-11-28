@@ -1,220 +1,256 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useAppStore } from '../../../lib/store';
 import { useUnitSystem } from '../../../../lib/useUnitSystem';
-import { ResponseCurve } from '../../../components/ResponseCurve';
-import { DesignFormEmbedded } from '../../../components/DesignFormEmbedded';
 import Link from 'next/link';
+import { DesignFormEmbedded } from '../../../components/DesignFormEmbedded';
+import { ResponseCurve } from '../../../components/ResponseCurve';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'next/navigation';
 
+type TabType = 'design' | 'box' | 'port';
+
 export default function DesignDetailPage() {
+  const params = useParams();
+  const designId = params.designId as string;
+  const { designs, drivers, editDesign } = useAppStore();
   const { unitSystem, setUnitSystem, isHydrated } = useUnitSystem();
+  const [activeTab, setActiveTab] = useState<TabType>('design');
+  
+  // Local state for box inputs
   const [boxWidth, setBoxWidth] = useState<string>('');
   const [boxHeight, setBoxHeight] = useState<string>('');
   
-  const params = useParams();
-  const designId = params.designId as string;
-  const { designs, drivers, editDesign, removeDesign } = useAppStore();
+  // Refs for debouncing store updates (500ms delay)
+  const widthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const heightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const design = designs.find((d) => d.id === designId);
-  const driver = design ? drivers.find((d) => d.id === design.driverId) : null;
-
-  // Sync box input state when design or unit system changes
+  // Cleanup timeouts on unmount
   useEffect(() => {
+    return () => {
+      if (widthTimeoutRef.current) clearTimeout(widthTimeoutRef.current);
+      if (heightTimeoutRef.current) clearTimeout(heightTimeoutRef.current);
+    };
+  }, []);
+
+  // Sync box input state with current design
+  useEffect(() => {
+    const design = designs.find((d) => d.id === designId);
     if (design) {
       const width = unitSystem === 'cm' ? design.box.width.cm.toFixed(2) : (design.box.width.cm / 2.54).toFixed(2);
       const height = unitSystem === 'cm' ? design.box.height.cm.toFixed(2) : (design.box.height.cm / 2.54).toFixed(2);
       setBoxWidth(width);
       setBoxHeight(height);
     }
-  }, [design, unitSystem]);
+  }, [designId, designs, unitSystem]);
 
-  if (!design || !driver) {
+  const design = useMemo(() => designs.find((d) => d.id === designId), [designId, designs]);
+  
+  const singleDataset = useMemo(() => {
+    if (design && design.splData?.dataset) {
+      return [{ label: design.name, data: design.splData.dataset }];
+    }
+    return [];
+  }, [design]);
+
+  if (!isHydrated) {
+    return <div className="container mx-auto px-4 py-8">Loading...</div>;
+  }
+
+  if (!design) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="text-red-500">Design not found</p>
-        <Link href="/design" className="text-blue-600 underline mt-4">
+        <p className="text-red-500 mb-4">Design not found.</p>
+        <Link href="/design" className="text-blue-600 underline">
           Back to Designs
         </Link>
       </div>
     );
   }
 
+  const widthCm = design.box.width.cm;
+  const heightCm = design.box.height.cm;
+  const depthCm = (design.vb * 1000) / (widthCm * heightCm);
+  const widthIn = widthCm / 2.54;
+  const heightIn = heightCm / 2.54;
+  const depthIn = depthCm / 2.54;
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link href="/design" className="text-blue-600 underline">
-          ← Back to Designs
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mt-2">{design.name}</h1>
-        <div className="flex gap-6 mt-3 text-sm text-gray-600">
-          <div>
-            <span className="font-semibold">Driver Config:</span> {design.nod} driver{design.nod !== 1 ? 's' : ''}
+      <Link href="/design" className="text-blue-600 underline mb-4 inline-block">
+        ← Back to Designs
+      </Link>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-screen">
+        {/* Left Column: Design Form */}
+        <div className="flex flex-col gap-6">
+          <div className="bg-white rounded-lg border p-6 flex-1">
+            <h2 className="text-lg font-semibold mb-6 text-gray-900">{design.name}</h2>
+            <DesignFormEmbedded
+              existing={design}
+              onSave={() => {
+                window.location.reload();
+              }}
+            />
           </div>
-          {design.type === 'Ported' && (
-            <div>
-              <span className="font-semibold">Port Config:</span> {design.np} port{design.np !== 1 ? 's' : ''}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Split Layout: Form on left (1/2), calculations on right (1/2) */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 min-h-screen">
-        {/* Left Column: Edit Form (1/2 width on xl and up) */}
-        <div>
-          <DesignFormEmbedded existing={design} />
         </div>
 
-        {/* Right Column: Chart and Specs Below (1/2 width on xl and up) */}
-        <div className="flex flex-col space-y-6 xl:col-span-1 min-h-96">
-          {/* SPL Response Curve - Grows to fill available space */}
-          <div className="flex flex-col flex-grow min-h-96">
+        {/* Right Column: Chart and Specs */}
+        <div className="flex flex-col gap-6 lg:col-span-2">
+          {/* SPL Response Curve */}
+          <div className="border p-4 rounded-lg flex flex-col flex-grow min-h-96">
             <h2 className="text-lg font-semibold mb-4">SPL Response</h2>
             <div className="flex-grow flex items-center justify-center">
-              {design.splData?.dataset && design.splData.dataset.length > 0 ? (
-                <ResponseCurve data={design.splData.dataset} />
+              {singleDataset.length > 0 ? (
+                <ResponseCurve datasets={singleDataset} />
               ) : (
-                <p className="text-gray-500">No SPL data available</p>
+                <p className="text-gray-500">Loading...</p>
               )}
             </div>
           </div>
 
-          {/* Box Dimensions */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Box Dimensions</h2>
+          {/* Tabbed Content */}
+          <div className="overflow-hidden">
+            {/* Tab Navigation */}
+            <div className="flex border-b bg-gray-50">
               <button
-                onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
-                className="px-3 py-1 text-sm font-medium text-gray-400 border rounded hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                title="Toggle cm/in"
+                onClick={() => setActiveTab('box')}
+                className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
+                  activeTab === 'box'
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
-                {unitSystem}
+                Box
               </button>
+              <button
+                onClick={() => setActiveTab('port')}
+                className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
+                  activeTab === 'port'
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Port
+              </button>
+              <div className="ml-auto flex items-center border-l">
+                <button
+                  onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
+                  className="px-3 py-3 text-sm font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  title="Toggle cm/in"
+                >
+                  {unitSystem === 'cm' ? 'cm' : 'in'}
+                </button>
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-gray-50 p-3 rounded">
-                <p className="text-xs text-gray-600 mb-2">Width (Editable) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={boxWidth}
-                  onChange={(e) => {
-                    setBoxWidth(e.target.value);
-                    const inputValue = parseFloat(e.target.value);
-                    if (!isNaN(inputValue)) {
-                      const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                      const newWidthIn = newWidth / 2.54;
-                      editDesign({
-                        ...design,
-                        box: {
-                          ...design.box,
-                          width: { cm: newWidth, in: newWidthIn }
-                        }
-                      });
-                    }
-                  }}
-                  className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2 text-sm"
-                />
-                <p className="text-xs text-gray-600">{unitSystem === 'cm' ? (design.box.width.cm / 2.54).toFixed(2) + ' in' : design.box.width.cm.toFixed(2) + ' cm'}</p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <p className="text-xs text-gray-600 mb-2">Height (Editable) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={boxHeight}
-                  onChange={(e) => {
-                    setBoxHeight(e.target.value);
-                    const inputValue = parseFloat(e.target.value);
-                    if (!isNaN(inputValue)) {
-                      const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                      const newHeightIn = newHeight / 2.54;
-                      editDesign({
-                        ...design,
-                        box: {
-                          ...design.box,
-                          height: { cm: newHeight, in: newHeightIn }
-                        }
-                      });
-                    }
-                  }}
-                  className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2 text-sm"
-                />
-                <p className="text-xs text-gray-600">{unitSystem === 'cm' ? (design.box.height.cm / 2.54).toFixed(2) + ' in' : design.box.height.cm.toFixed(2) + ' cm'}</p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <p className="text-xs text-gray-600 mb-2">Depth (Auto) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                <p className="text-sm font-semibold mb-2">{unitSystem === 'cm' ? ((design.vb * 1000) / (design.box.width.cm * design.box.height.cm)).toFixed(2) : (((design.vb * 1000) / (design.box.width.cm * design.box.height.cm)) / 2.54).toFixed(2)} {unitSystem === 'cm' ? 'cm' : 'in'}</p>
-                <p className="text-xs text-gray-600">{unitSystem === 'cm' ? (((design.vb * 1000) / (design.box.width.cm * design.box.height.cm)) / 2.54).toFixed(2) + ' in' : ((design.vb * 1000) / (design.box.width.cm * design.box.height.cm)).toFixed(2) + ' cm'}</p>
-                <p className="text-xs text-gray-500 mt-2">Calculated from Vb ÷ (W×H)</p>
-              </div>
+
+            {/* Tab Content */}
+            <div className="p-6 bg-white">
+              {/* Box Tab */}
+              {activeTab === 'box' && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 mb-4">{design.name} - Box Dimensions</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Width (Editable) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={boxWidth}
+                        onChange={(e) => {
+                          setBoxWidth(e.target.value);
+                          if (widthTimeoutRef.current) clearTimeout(widthTimeoutRef.current);
+                          widthTimeoutRef.current = setTimeout(() => {
+                            const inputValue = parseFloat(e.target.value);
+                            if (!isNaN(inputValue)) {
+                              const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                              const newWidthIn = newWidth / 2.54;
+                              editDesign({
+                                ...design,
+                                box: {
+                                  ...design.box,
+                                  width: { cm: newWidth, in: newWidthIn }
+                                }
+                              });
+                            }
+                          }, 500);
+                        }}
+                        className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
+                      />
+                      <p className="text-sm text-gray-600">{unitSystem === 'cm' ? widthIn.toFixed(2) + ' in' : widthCm.toFixed(2) + ' cm'}</p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Height (Editable) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={boxHeight}
+                        onChange={(e) => {
+                          setBoxHeight(e.target.value);
+                          if (heightTimeoutRef.current) clearTimeout(heightTimeoutRef.current);
+                          heightTimeoutRef.current = setTimeout(() => {
+                            const inputValue = parseFloat(e.target.value);
+                            if (!isNaN(inputValue)) {
+                              const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                              const newHeightIn = newHeight / 2.54;
+                              editDesign({
+                                ...design,
+                                box: {
+                                  ...design.box,
+                                  height: { cm: newHeight, in: newHeightIn }
+                                }
+                              });
+                            }
+                          }, 500);
+                        }}
+                        className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
+                      />
+                      <p className="text-sm text-gray-600">{unitSystem === 'cm' ? heightIn.toFixed(2) + ' in' : heightCm.toFixed(2) + ' cm'}</p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Depth (Auto-calculated from Vb) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <p className="text-lg font-semibold text-gray-900 mb-2">{unitSystem === 'cm' ? depthCm.toFixed(2) : depthIn.toFixed(2)}</p>
+                      <p className="text-sm text-gray-600">{unitSystem === 'cm' ? depthIn.toFixed(2) + ' in' : depthCm.toFixed(2) + ' cm'}</p>
+                      <p className="text-xs text-gray-500 mt-2">Calculated as: Vb ({design.vb}L) ÷ (Width × Height)</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Port Tab */}
+              {activeTab === 'port' && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 mb-4">{design.name} - Port Specifications</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Min Dia (Rec) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.rec.cm.toFixed(2) : design.dmin.rec.in.toFixed(2)}</p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Min Dia (Act) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.actual.cm.toFixed(2) : design.dmin.actual.in.toFixed(2)}</p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Port Area {unitSystem === 'cm' ? 'cm²' : 'in²'}</p>
+                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.area.cm.toFixed(2) : design.port.area.in.toFixed(2)}</p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Port Length {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.lv.cm.toFixed(2) : design.lv.in.toFixed(2)}</p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Port Width {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.width.cm.toFixed(2) : design.port.width.in.toFixed(2)}</p>
+                    </div>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <p className="text-xs text-gray-600 mb-1">Port Height {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.height.cm.toFixed(2) : design.port.height.in.toFixed(2)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Port Dimensions - Only for Ported designs */}
-          {design.type === 'Ported' && (
-            <div>
-              <h2 className="text-lg font-semibold mb-4">Port Specifications</h2>
-              <div className="grid grid-cols-4 gap-3 text-sm text-gray-700">
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-600">Min Dia (Rec) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                  <p className="font-semibold">{unitSystem === 'cm' ? design.dmin.rec.cm.toFixed(2) : design.dmin.rec.in.toFixed(2)}</p>
-                  <p className="text-xs text-gray-600 mt-1">{unitSystem === 'cm' ? design.dmin.rec.in.toFixed(2) + ' in' : design.dmin.rec.cm.toFixed(2) + ' cm'}</p>
-                </div>
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-600">Min Dia (Act) ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                  <p className="font-semibold">{unitSystem === 'cm' ? design.dmin.actual.cm.toFixed(2) : design.dmin.actual.in.toFixed(2)}</p>
-                  <p className="text-xs text-gray-600 mt-1">{unitSystem === 'cm' ? design.dmin.actual.in.toFixed(2) + ' in' : design.dmin.actual.cm.toFixed(2) + ' cm'}</p>
-                </div>
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-600">Port Area ({unitSystem === 'cm' ? 'cm²' : 'in²'})</p>
-                  <p className="font-semibold">{unitSystem === 'cm' ? design.port.area.cm.toFixed(2) : design.port.area.in.toFixed(2)}</p>
-                  <p className="text-xs text-gray-600 mt-1">{unitSystem === 'cm' ? design.port.area.in.toFixed(2) + ' in²' : design.port.area.cm.toFixed(2) + ' cm²'}</p>
-                </div>
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-600">Port Length ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                  <p className="font-semibold">{unitSystem === 'cm' ? design.lv.cm.toFixed(2) : design.lv.in.toFixed(2)}</p>
-                  <p className="text-xs text-gray-600 mt-1">{unitSystem === 'cm' ? design.lv.in.toFixed(2) + ' in' : design.lv.cm.toFixed(2) + ' cm'}</p>
-                </div>
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-600">Port Width ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                  <p className="font-semibold">{unitSystem === 'cm' ? design.port.width.cm.toFixed(2) : design.port.width.in.toFixed(2)}</p>
-                  <p className="text-xs text-gray-600 mt-1">{unitSystem === 'cm' ? design.port.width.in.toFixed(2) + ' in' : design.port.width.cm.toFixed(2) + ' cm'}</p>
-                </div>
-                <div className="bg-gray-50 p-2 rounded">
-                  <p className="text-xs text-gray-600">Port Height ({unitSystem === 'cm' ? 'cm' : 'in'})</p>
-                  <p className="font-semibold">{unitSystem === 'cm' ? design.port.height.cm.toFixed(2) : design.port.height.in.toFixed(2)}</p>
-                  <p className="text-xs text-gray-600 mt-1">{unitSystem === 'cm' ? design.port.height.in.toFixed(2) + ' in' : design.port.height.cm.toFixed(2) + ' cm'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Footer - Save/Delete Buttons */}
-        <div className="xl:col-span-2 border-t bg-gray-50 p-4 flex justify-end gap-2 -mx-6 -mb-8 px-6">
-          <button
-            onClick={() => {
-              // Refresh to show updated design
-              window.location.reload();
-            }}
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
-          >
-            Save
-          </button>
-          <button
-            onClick={() => {
-              if (confirm('Are you sure you want to delete this design?')) {
-                removeDesign(design.id);
-                window.location.href = '/design';
-              }
-            }}
-            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 text-sm font-medium"
-          >
-            Delete
-          </button>
         </div>
       </div>
     </div>
