@@ -83,6 +83,22 @@ export function DesignFormEmbedded({
     });
   }, [drivers, existing]);
 
+  // Reset form when existing design changes
+  useEffect(() => {
+    if (!existing) {
+      return;
+    }
+    setForm({
+      name: existing.name || '',
+      driverId: existing.driverId,
+      type: existing.type as 'Ported' | 'Sealed',
+      vb: existing.vb,
+      fb: existing.fb,
+      nod: existing.nod || 1,
+      np: existing.np || 1,
+    });
+  }, [existing?.id]);
+
   // Sync volumes when drivers load (ensures we have driver data with recommended values)
   useEffect(() => {
     // Only auto-populate for existing designs, not new ones
@@ -94,7 +110,7 @@ export function DesignFormEmbedded({
         setForm((s) => ({ ...s, vb: newVb, fb: newFb }));
       }
     }
-  }, [drivers.length, existing]);
+  }, [drivers.length, existing?.id]);
 
   function submit(e?: React.FormEvent) {
     if (e) e.preventDefault();
@@ -139,7 +155,9 @@ export function DesignFormEmbedded({
 
   return (
     <form onSubmit={submit} className="bg-white rounded-lg p-6 text-gray-900 border">
-      <h2 className="text-lg font-semibold mb-4 text-gray-900">{existing ? 'Edit' : 'New'} Design</h2>
+      <h2 className="text-lg font-semibold mb-4 text-gray-900">
+        {existing ? 'Edit' : 'New'} Design {form.name && `— ${form.name}`}
+      </h2>
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col col-span-1">

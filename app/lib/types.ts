@@ -40,6 +40,7 @@ export interface Design {
   fb: number;
   nod: number;
   np: number;
+  isDisplayed?: boolean;
   box: {
     width: {
       cm: number;

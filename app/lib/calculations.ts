@@ -354,12 +354,14 @@ export function enrichDesign(design: Partial<Design>, driver: Driver): Design {
   const calculated = calculateDesignParameters(design, driver);
   return {
     id: design.id || '',
+    name: design.name || '',
     driverId: design.driverId || '',
     type: design.type || 'Ported',
     vb: design.vb || 0,
     fb: design.fb || 0,
     nod: design.nod || 1,
     np: design.np || 1,
+    isDisplayed: design.isDisplayed ?? false,
     ...calculated,
   } as Design;
 }

@@ -9,40 +9,25 @@ import { useState, useMemo } from 'react';
 type TabType = 'design' | 'box' | 'port';
 
 export default function DesignPage() {
-  const { designs, drivers } = useAppStore();
-  const [selectedDesigns, setSelectedDesigns] = useState<Set<string>>(new Set());
+  const { designs, drivers, toggleDisplayDesign } = useAppStore();
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
 
   const toggleDesign = (designId: string) => {
-    const newSelected = new Set(selectedDesigns);
-    if (newSelected.has(designId)) {
-      newSelected.delete(designId);
-      // If we're removing the focused design, clear it
-      if (focusedDesignId === designId) {
-        setFocusedDesignId(null);
-      }
-    } else {
-      newSelected.add(designId);
-      // Auto-focus on the newly selected design
-      setFocusedDesignId(designId);
-    }
-    setSelectedDesigns(newSelected);
+    toggleDisplayDesign(designId);
+    // Auto-focus on the newly selected design
+    setFocusedDesignId(designId);
   };
 
   const datasets = useMemo(() => {
-    return Array.from(selectedDesigns)
-      .map((id) => designs.find((d) => d.id === id))
-      .filter((d) => d && d.splData?.dataset)
+    return designs
+      .filter((d) => d.isDisplayed)
+      .filter((d) => d.splData?.dataset)
       .map((d, i) => ({
-        label: d!.name,
-        data: d!.splData!.dataset,
+        label: d.name,
+        data: d.splData!.dataset,
       }));
-  }, [selectedDesigns, designs]);
-
-  const selectedDesignsList = Array.from(selectedDesigns)
-    .map((id) => designs.find((d) => d.id === id))
-    .filter((d) => d) as any[];
+  }, [designs]);
 
   if (drivers.length === 0) {
     return (
@@ -81,7 +66,7 @@ export default function DesignPage() {
                       <div className="flex items-start gap-3 flex-1 min-w-0">
                         <input
                           type="checkbox"
-                          checked={selectedDesigns.has(design.id)}
+                          checked={design.isDisplayed ?? false}
                           onChange={() => {
                             toggleDesign(design.id);
                           }}

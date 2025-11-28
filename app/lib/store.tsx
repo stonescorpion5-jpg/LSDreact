@@ -15,6 +15,7 @@ type AppStore = {
   addDesign: (design: Omit<Design, 'id'>) => Design;
   editDesign: (design: Design) => void;
   removeDesign: (id: string) => void;
+  toggleDisplayDesign: (id: string) => void;
 };
 
 const STORAGE_KEY = 'lsd-store-v10';
@@ -39,6 +40,9 @@ const defaultStore: AppStore = {
     throw new Error('Not implemented');
   },
   removeDesign: () => {
+    throw new Error('Not implemented');
+  },
+  toggleDisplayDesign: () => {
     throw new Error('Not implemented');
   },
 };
@@ -151,6 +155,14 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     setDesigns((s) => s.filter((d) => d.id !== id));
   }
 
+  const toggleDisplayDesign = useCallback((designId: string) => {
+    setDesigns((s) =>
+      s.map((d) =>
+        d.id === designId ? { ...d, isDisplayed: !d.isDisplayed } : d
+      )
+    );
+  }, []);
+
   const value: AppStore = {
     drivers,
     designs,
@@ -160,6 +172,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     addDesign,
     editDesign,
     removeDesign,
+    toggleDisplayDesign,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
