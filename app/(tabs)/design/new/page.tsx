@@ -172,12 +172,27 @@ export default function NewDesignPage() {
               {activeTab === 'design' && (
                 <div className="space-y-6">
                   <div className="max-w-2xl">
-                    <DesignFormEmbedded
-                      onSave={() => {
-                        // Refresh the page to show new design in list
-                        window.location.reload();
-                      }}
-                    />
+                    {focusedDesignId ? (
+                      (() => {
+                        const design = designs.find((d) => d.id === focusedDesignId);
+                        return design ? (
+                          <DesignFormEmbedded
+                            existing={design}
+                            onSave={() => {
+                              // Refresh the page to show updated design
+                              window.location.reload();
+                            }}
+                          />
+                        ) : null;
+                      })()
+                    ) : (
+                      <DesignFormEmbedded
+                        onSave={() => {
+                          // Refresh the page to show new design in list
+                          window.location.reload();
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               )}
