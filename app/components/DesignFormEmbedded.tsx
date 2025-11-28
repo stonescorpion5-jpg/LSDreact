@@ -11,7 +11,7 @@ export function DesignFormEmbedded({
   existing?: Design | null;
   onSave?: () => void;
 }) {
-  const { addDesign, editDesign, drivers } = useAppStore();
+  const { addDesign, editDesign, removeDesign, drivers } = useAppStore();
 
   const [form, setForm] = useState(() => {
     // For new designs, leave driverId empty and don't set Vb/Fb
@@ -122,6 +122,7 @@ export function DesignFormEmbedded({
       fb: Number(form.fb),
       nod: Number(form.nod),
       np: Number(form.np),
+      isDisplayed: existing?.isDisplayed ?? true,
       box: existing?.box || {
         width: { cm: 0, in: 0 },
         height: { cm: 0, in: 0 },
@@ -253,6 +254,20 @@ export function DesignFormEmbedded({
         <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">
           Save Design
         </button>
+        {existing && (
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm('Are you sure you want to delete this design?')) {
+                removeDesign(existing.id);
+                onSave?.();
+              }
+            }}
+            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+          >
+            Delete
+          </button>
+        )}
       </div>
     </form>
   );
