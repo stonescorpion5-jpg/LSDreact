@@ -14,31 +14,31 @@ export function DesignFormEmbedded({
   const { addDesign, editDesign, drivers } = useAppStore();
 
   const [form, setForm] = useState(() => {
-    const driverId = existing?.driverId || drivers[0]?.id || '';
-    const type = (existing?.type || 'Ported') as 'Ported' | 'Sealed';
-    const driver = drivers.find((d) => d.id === driverId);
-    
-    // Use recommended volumes from driver based on type if not editing
-    let vb = existing?.vb;
-    if (!vb) {
-      vb = type === 'Ported' ? (driver?.recPortedVb || 50) : (driver?.recSealedVb || 50);
-    }
-    
-    let fb = existing?.fb;
-    if (!fb) {
-      fb = type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
+    // For new designs, leave driverId empty and don't set Vb/Fb
+    if (!existing) {
+      return {
+        name: '',
+        driverId: '',
+        type: 'Ported' as const,
+        vb: 0,
+        fb: 0,
+        nod: 1,
+        np: 1,
+      };
     }
 
-    console.log('DesignFormEmbedded init:', { driverId, type, driver: driver?.brandModel, vb, fb });
-
+    // For existing designs, populate with current values
+    const driverId = existing.driverId;
+    const type = existing.type as 'Ported' | 'Sealed';
+    
     return {
-      name: existing?.name || '',
+      name: existing.name || '',
       driverId,
       type,
-      vb,
-      fb,
-      nod: existing?.nod || 1,
-      np: existing?.np || 1,
+      vb: existing.vb,
+      fb: existing.fb,
+      nod: existing.nod || 1,
+      np: existing.np || 1,
     };
   });
 
@@ -85,27 +85,16 @@ export function DesignFormEmbedded({
 
   // Sync volumes when drivers load (ensures we have driver data with recommended values)
   useEffect(() => {
-    if (drivers.length > 0) {
-      console.log('Drivers loaded, checking sealed volumes:', drivers.map(d => ({ 
-        brand: d.brandModel, 
-        recPortedVb: d.recPortedVb,
-        recSealedVb: d.recSealedVb,
-        recPortedFb: d.recPortedFb,
-        recSealedFb: d.recSealedFb,
-      })));
-      
-      setForm((s) => {
-        const driver = drivers.find((d) => d.id === s.driverId);
-        if (driver) {
-          const newVb = s.type === 'Ported' ? (driver?.recPortedVb || 50) : (driver?.recSealedVb || 50);
-          const newFb = s.type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
-          console.log('DesignFormEmbedded useEffect sync:', { driverId: driver.id, type: s.type, vb: newVb, fb: newFb });
-          return { ...s, vb: newVb, fb: newFb };
-        }
-        return s;
-      });
+    // Only auto-populate for existing designs, not new ones
+    if (existing && drivers.length > 0 && form.driverId) {
+      const driver = drivers.find((d) => d.id === form.driverId);
+      if (driver && form.vb === 0 && form.fb === 0) {
+        const newVb = form.type === 'Ported' ? (driver?.recPortedVb || 50) : (driver?.recSealedVb || 50);
+        const newFb = form.type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
+        setForm((s) => ({ ...s, vb: newVb, fb: newFb }));
+      }
     }
-  }, [drivers.length]);
+  }, [drivers.length, existing]);
 
   function submit(e?: React.FormEvent) {
     if (e) e.preventDefault();
