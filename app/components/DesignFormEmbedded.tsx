@@ -217,7 +217,14 @@ export function DesignFormEmbedded({
         </label>
 
         <label className="flex flex-col col-span-1">
-          <span className="text-sm text-gray-700">Fb (Hz)</span>
+          <span className="text-sm text-gray-700">
+            Fb (Hz)
+            {selectedDriver && (
+              <span className="text-xs text-gray-500 ml-1">
+                (Rec: {form.type === 'Ported' ? selectedDriver.recPortedFb : selectedDriver.recSealedFb}Hz)
+              </span>
+            )}
+          </span>
           <input
             type="number"
             step="0.1"
@@ -247,6 +254,25 @@ export function DesignFormEmbedded({
             onChange={(e) => handleChange('np', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           />
+        </label>
+
+        <label className="flex flex-col col-span-1">
+          <span className="text-sm text-gray-700">
+            F3 (Hz)
+            {selectedDriver && (
+              <span className="text-xs text-gray-500 ml-1">
+                (Rec: {form.type === 'Ported' ? selectedDriver.recPortedF3 : 'N/A'}Hz)
+              </span>
+            )}
+          </span>
+          <input
+            type="number"
+            step="0.1"
+            value={selectedDriver ? (form.type === 'Ported' ? selectedDriver.recPortedF3 : 0) : 0}
+            disabled
+            className="border border-gray-300 p-2 rounded text-gray-600 bg-gray-100 cursor-not-allowed"
+          />
+          <p className="text-xs text-gray-500 mt-1">Auto-calculated from driver specs</p>
         </label>
       </div>
 
