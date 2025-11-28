@@ -270,14 +270,14 @@ export function DesignFormEmbedded({
             F3 (Hz)
             {selectedDriver && (
               <span className="text-xs text-gray-500 ml-1">
-                (Rec: {form.type === 'Ported' ? selectedDriver.recPortedF3 : 'N/A'}Hz)
+                (Rec: {form.type === 'Ported' ? selectedDriver.recPortedF3 : selectedDriver.recSealedF3}Hz)
               </span>
             )}
           </span>
           <input
             type="number"
             step="0.1"
-            value={selectedDriver ? (form.type === 'Ported' ? selectedDriver.recPortedF3 : 0) : 0}
+            value={selectedDriver ? (form.type === 'Ported' ? selectedDriver.recPortedF3 : selectedDriver.recSealedF3 || 0) : 0}
             disabled
             className="border border-gray-300 p-2 rounded text-gray-600 bg-gray-100 cursor-not-allowed"
           />

@@ -27,6 +27,7 @@ export interface Driver {
   recPortedF3?: number;
   recSealedVb?: number;
   recSealedFb?: number;
+  recSealedF3?: number;
   spl?: number;
   vd?: number;
 }

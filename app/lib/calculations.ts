@@ -105,6 +105,13 @@ export function calculateDriverParameters(driver: Partial<Driver>): Partial<Driv
       ? Math.round(100 * (Math.pow(driver.vas / recSealedVb, 0.5) * driver.fs)) / 100
       : 0;
 
+  // -3dB frequency for sealed enclosure (F3)
+  // For sealed enclosures with Butterworth alignment (Qtc = 0.577)
+  const recSealedF3 =
+    driver.fs && recSealedVb && driver.vas
+      ? Math.round(100 * (Math.pow(driver.vas / recSealedVb, 0.31) * driver.fs)) / 100
+      : 0;
+
   // EBP - Efficiency bandwidth product
   const ebp = driver.fs && driver.qes ? driver.fs / driver.qes : 0;
 
@@ -140,6 +147,7 @@ export function calculateDriverParameters(driver: Partial<Driver>): Partial<Driv
     recPortedFb,
     recSealedVb,
     recSealedFb,
+    recSealedF3,
     ebp,
     par,
     per,
