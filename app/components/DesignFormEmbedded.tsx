@@ -32,6 +32,7 @@ export function DesignFormEmbedded({
     console.log('DesignFormEmbedded init:', { driverId, type, driver: driver?.brandModel, vb, fb });
 
     return {
+      name: existing?.name || '',
       driverId,
       type,
       vb,
@@ -44,8 +45,8 @@ export function DesignFormEmbedded({
   const handleChange = useCallback((k: keyof typeof form, v: string | number) => {
     let newValue: any = v;
     
-    // Only convert to number for numeric fields, keep strings for driverId and type
-    if (k !== 'type' && k !== 'driverId') {
+    // Only convert to number for numeric fields, keep strings for name, driverId and type
+    if (k !== 'type' && k !== 'driverId' && k !== 'name') {
       newValue = typeof v === 'string' ? parseFloat(v) || 0 : v;
     }
     
@@ -109,6 +110,7 @@ export function DesignFormEmbedded({
   function submit(e?: React.FormEvent) {
     if (e) e.preventDefault();
     const payload = {
+      name: String(form.name),
       driverId: String(form.driverId),
       type: form.type as 'Ported' | 'Sealed',
       vb: Number(form.vb),
@@ -151,6 +153,17 @@ export function DesignFormEmbedded({
       <h2 className="text-lg font-semibold mb-4 text-gray-900">{existing ? 'Edit' : 'New'} Design</h2>
 
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-3">
+        <label className="flex flex-col col-span-1">
+          <span className="text-sm text-gray-700">Design Name</span>
+          <input
+            type="text"
+            value={form.name}
+            onChange={(e) => handleChange('name', e.target.value)}
+            placeholder="e.g., My First Speaker"
+            className="border border-gray-300 p-2 rounded text-gray-900"
+          />
+        </label>
+
         <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700">Driver</span>
           <select

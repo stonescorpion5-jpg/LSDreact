@@ -33,6 +33,7 @@ export interface Driver {
 
 export interface Design {
   id: string;
+  name: string;
   driverId: string;
   type: 'Ported' | 'Sealed';
   vb: number;

@@ -7,7 +7,6 @@ export function TabNavigation() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: 'Simulate', href: '/simulate' },
     { name: 'Design', href: '/design' },
     { name: 'Driver', href: '/driver' },
   ];

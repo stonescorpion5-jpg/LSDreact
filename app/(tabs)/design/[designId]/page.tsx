@@ -31,6 +31,7 @@ export default function DesignDetailPage() {
         <Link href="/design" className="text-blue-600 underline">
           ← Back to Designs
         </Link>
+        <h1 className="text-3xl font-bold text-gray-900 mt-2">{design.name}</h1>
       </div>
 
       {/* Split Layout: Form on left (1/4), calculations on right (3/4) */}
