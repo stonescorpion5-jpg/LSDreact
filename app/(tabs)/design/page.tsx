@@ -83,11 +83,22 @@ export default function DesignPage() {
                         checked={selectedDesigns.has(design.id)}
                         onChange={() => {
                           toggleDesign(design.id);
-                          setFocusedDesignId(design.id);
                         }}
                         className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                       />
-                      <div className="flex-1 min-w-0 pointer-events-none select-none">
+                      <div 
+                        className="flex-1 min-w-0 select-none cursor-pointer hover:opacity-70"
+                        onClick={() => {
+                          setFocusedDesignId(design.id);
+                          setActiveTab('design');
+                          // Auto-select if not already selected
+                          if (!selectedDesigns.has(design.id)) {
+                            const newSelected = new Set(selectedDesigns);
+                            newSelected.add(design.id);
+                            setSelectedDesigns(newSelected);
+                          }
+                        }}
+                      >
                         <div className="font-medium text-gray-900">{design.name}</div>
                         <div className="text-xs text-gray-600">
                           {drivers.find((d) => d.id === design.driverId)?.brandModel}
