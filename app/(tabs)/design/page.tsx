@@ -81,11 +81,10 @@ export default function DesignPage() {
                         >
                           <div className="font-medium text-gray-900">{design.name}</div>
                           <div className="text-xs text-gray-600">
-                            {drivers.find((d) => d.id === design.driverId)?.brandModel}
+                            {drivers.find((d) => d.id === design.driverId)?.brandModel} {drivers.find((d) => d.id === design.driverId)?.size}"
                           </div>
-                          <div className="text-xs text-gray-600 mt-1 space-y-0.5">
-                            <div>Vb: {design.vb}L</div>
-                            <div>F3: {design.fb}Hz</div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            Vb: {design.vb}L &nbsp; F3: {design.fb}Hz
                           </div>
                         </div>
                       </div>
