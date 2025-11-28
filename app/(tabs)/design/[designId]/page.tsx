@@ -40,20 +40,16 @@ export default function DesignDetailPage() {
           <DesignFormEmbedded existing={design} />
         </div>
 
-        {/* Right Column: Calculations and Chart */}
+        {/* Right Column: Chart and Specs Below */}
         <div className="space-y-6">
-          {/* Design Summary */}
+          {/* SPL Response Curve */}
           <div className="border p-4 rounded-lg">
-            <h1 className="text-2xl font-bold mb-2">
-              {driver.brandModel || `${driver.brand} ${driver.model}`} - {design.type}
-            </h1>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>Type: {design.type}</div>
-              <div>Vb: {design.vb}L</div>
-              <div>Fb: {design.fb}Hz</div>
-              <div># Drivers: {design.nod}</div>
-              <div># Ports: {design.np}</div>
-            </div>
+            <h2 className="text-lg font-semibold mb-4">SPL Response</h2>
+            {design.splData?.dataset && design.splData.dataset.length > 0 ? (
+              <ResponseCurve data={design.splData.dataset} />
+            ) : (
+              <p className="text-gray-500">No SPL data available</p>
+            )}
           </div>
 
           {/* Box Dimensions */}
@@ -107,16 +103,6 @@ export default function DesignDetailPage() {
                 <p className="font-semibold">{design.port.height.cm.toFixed(2)} cm</p>
               </div>
             </div>
-          </div>
-
-          {/* SPL Response Curve */}
-          <div className="border p-4 rounded-lg">
-            <h2 className="text-lg font-semibold mb-4">SPL Response</h2>
-            {design.splData?.dataset && design.splData.dataset.length > 0 ? (
-              <ResponseCurve data={design.splData.dataset} />
-            ) : (
-              <p className="text-gray-500">No SPL data available</p>
-            )}
           </div>
         </div>
       </div>

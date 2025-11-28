@@ -55,8 +55,8 @@ export function DesignFormEmbedded({
         [k]: newValue,
       };
       
-      // If driver or type changed, update Vb and Fb with recommended values (for new designs only)
-      if (!existing && (k === 'driverId' || k === 'type')) {
+      // If driver or type changed, update Vb and Fb with recommended values
+      if (k === 'driverId' || k === 'type') {
         const driver = drivers.find((d) => d.id === updated.driverId);
         if (driver) {
           const newVb = updated.type === 'Ported' ? (driver.recPortedVb || 50) : (driver.recSealedVb || 50);
@@ -84,19 +84,27 @@ export function DesignFormEmbedded({
 
   // Sync volumes when drivers load (ensures we have driver data with recommended values)
   useEffect(() => {
-    if (drivers.length > 0 && !existing) {
+    if (drivers.length > 0) {
+      console.log('Drivers loaded, checking sealed volumes:', drivers.map(d => ({ 
+        brand: d.brandModel, 
+        recPortedVb: d.recPortedVb,
+        recSealedVb: d.recSealedVb,
+        recPortedFb: d.recPortedFb,
+        recSealedFb: d.recSealedFb,
+      })));
+      
       setForm((s) => {
         const driver = drivers.find((d) => d.id === s.driverId);
         if (driver) {
           const newVb = s.type === 'Ported' ? (driver?.recPortedVb || 50) : (driver?.recSealedVb || 50);
           const newFb = s.type === 'Ported' ? (driver?.recPortedFb || 45) : (driver?.recSealedFb || 45);
-          console.log('DesignFormEmbedded useEffect sync:', { driverId: driver.id, vb: newVb, fb: newFb });
+          console.log('DesignFormEmbedded useEffect sync:', { driverId: driver.id, type: s.type, vb: newVb, fb: newFb });
           return { ...s, vb: newVb, fb: newFb };
         }
         return s;
       });
     }
-  }, [drivers.length, existing]);
+  }, [drivers.length]);
 
   function submit(e?: React.FormEvent) {
     if (e) e.preventDefault();
