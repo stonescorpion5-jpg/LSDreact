@@ -72,22 +72,41 @@ export default function DesignPage() {
                   {designs.map((design) => (
                     <div
                       key={design.id}
-                      className={`flex items-start gap-3 p-3 rounded border transition-colors ${
+                      className={`flex items-start gap-3 p-3 rounded border transition-colors justify-between ${
                         focusedDesignId === design.id
                           ? 'border-blue-600 bg-blue-50'
                           : 'border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={selectedDesigns.has(design.id)}
-                        onChange={() => {
-                          toggleDesign(design.id);
-                        }}
-                        className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                      />
-                      <div 
-                        className="flex-1 min-w-0 select-none cursor-pointer hover:opacity-70"
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={selectedDesigns.has(design.id)}
+                          onChange={() => {
+                            toggleDesign(design.id);
+                          }}
+                          className="w-4 h-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <div 
+                          className="flex-1 min-w-0 select-none cursor-pointer hover:opacity-70"
+                          onClick={() => {
+                            setFocusedDesignId(design.id);
+                            setActiveTab('design');
+                            // Auto-select if not already selected
+                            if (!selectedDesigns.has(design.id)) {
+                              const newSelected = new Set(selectedDesigns);
+                              newSelected.add(design.id);
+                              setSelectedDesigns(newSelected);
+                            }
+                          }}
+                        >
+                          <div className="font-medium text-gray-900">{design.name}</div>
+                          <div className="text-xs text-gray-600">
+                            {drivers.find((d) => d.id === design.driverId)?.brandModel}
+                          </div>
+                        </div>
+                      </div>
+                      <button
                         onClick={() => {
                           setFocusedDesignId(design.id);
                           setActiveTab('design');
@@ -98,12 +117,13 @@ export default function DesignPage() {
                             setSelectedDesigns(newSelected);
                           }
                         }}
+                        className="flex-shrink-0 p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                        title="Edit design"
                       >
-                        <div className="font-medium text-gray-900">{design.name}</div>
-                        <div className="text-xs text-gray-600">
-                          {drivers.find((d) => d.id === design.driverId)?.brandModel}
-                        </div>
-                      </div>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
                     </div>
                   ))}
                 </div>
