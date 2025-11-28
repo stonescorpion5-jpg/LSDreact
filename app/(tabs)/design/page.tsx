@@ -15,12 +15,12 @@ export default function DesignPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Designs</h1>
-        <div>
+        <div className="flex gap-2">
           <Link
             href="/design/new"
             className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 inline-block"
           >
-            Add Design
+            Compare Designs
           </Link>
         </div>
       </div>
@@ -32,8 +32,9 @@ export default function DesignPage() {
             <div className="flex items-start justify-between">
               <Link href={`/design/${design.id}`} className="flex-grow">
                 <div className="cursor-pointer hover:opacity-70">
-                  <h2 className="font-semibold">{getDriverName(design.driverId)} - {design.type}</h2>
-                  <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                  <h2 className="font-semibold text-lg text-gray-900">{design.name}</h2>
+                  <div className="grid grid-cols-3 gap-2 mt-2 text-sm text-gray-700">
+                    <div>Driver: {getDriverName(design.driverId)}</div>
                     <div>Type: {design.type}</div>
                     <div>Vb: {design.vb}L</div>
                     <div>Fb: {design.fb}Hz</div>
@@ -45,13 +46,13 @@ export default function DesignPage() {
               <div className="flex flex-col gap-2 ml-4">
                 <Link
                   href={`/design/${design.id}`}
-                  className="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-800 text-center"
+                  className="px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-800 text-center text-sm"
                 >
                   Edit
                 </Link>
                 <button
                   onClick={() => removeDesign(design.id)}
-                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
                 >
                   Delete
                 </button>

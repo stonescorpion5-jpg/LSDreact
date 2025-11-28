@@ -25,20 +25,46 @@ ChartJS.register(
 );
 
 interface ResponseCurveProps {
-  data: Array<{ x: number; y: number }>;
+  data?: Array<{ x: number; y: number }>;
+  datasets?: Array<{
+    label: string;
+    data: Array<{ x: number; y: number }>;
+    borderColor?: string;
+  }>;
 }
 
-export function ResponseCurve({ data }: ResponseCurveProps) {
+const colors = [
+  'rgb(75, 192, 192)',    // Teal
+  'rgb(255, 99, 132)',    // Red
+  'rgb(54, 162, 235)',    // Blue
+  'rgb(255, 206, 86)',    // Yellow
+  'rgb(153, 102, 255)',   // Purple
+  'rgb(255, 159, 64)',    // Orange
+];
+
+export function ResponseCurve({ data, datasets: providedDatasets }: ResponseCurveProps) {
+  let datasets = [
+    {
+      label: 'Response',
+      data: data || [],
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.1,
+      pointRadius: 1,
+    },
+  ];
+
+  if (providedDatasets && providedDatasets.length > 0) {
+    datasets = providedDatasets.map((ds, i) => ({
+      label: ds.label,
+      data: ds.data,
+      borderColor: ds.borderColor || colors[i % colors.length],
+      tension: 0.1,
+      pointRadius: 1,
+    }));
+  }
+
   const chartData = {
-    datasets: [
-      {
-        label: 'Response',
-        data: data,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-        pointRadius: 1,
-      },
-    ],
+    datasets,
   };
 
   const options = {
