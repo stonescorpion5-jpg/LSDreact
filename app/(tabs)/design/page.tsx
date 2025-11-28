@@ -4,7 +4,7 @@ import { useAppStore } from '../../lib/store';
 import Link from 'next/link';
 import { DesignFormEmbedded } from '../../components/DesignFormEmbedded';
 import { ResponseCurve } from '../../components/ResponseCurve';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 type TabType = 'design' | 'box' | 'port';
 
@@ -12,6 +12,21 @@ export default function DesignPage() {
   const { designs, drivers, toggleDisplayDesign } = useAppStore();
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
+
+  // Load focused design from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('lsd-focused-design-id');
+    if (saved) {
+      setFocusedDesignId(saved);
+    }
+  }, []);
+
+  // Save focused design to localStorage when it changes
+  useEffect(() => {
+    if (focusedDesignId) {
+      localStorage.setItem('lsd-focused-design-id', focusedDesignId);
+    }
+  }, [focusedDesignId]);
 
   const toggleDesign = (designId: string) => {
     toggleDisplayDesign(designId);
