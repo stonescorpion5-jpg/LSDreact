@@ -150,8 +150,8 @@ export function DesignFormEmbedded({
     <form onSubmit={submit} className="bg-white rounded-lg p-6 text-gray-900 border">
       <h2 className="text-lg font-semibold mb-4 text-gray-900">{existing ? 'Edit' : 'New'} Design</h2>
 
-      <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col col-span-2">
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-3">
+        <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700">Driver</span>
           <select
             value={form.driverId}
@@ -171,7 +171,7 @@ export function DesignFormEmbedded({
           )}
         </label>
 
-        <label className="flex flex-col">
+        <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700">Type</span>
           <select
             value={form.type}
