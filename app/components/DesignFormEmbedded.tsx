@@ -152,7 +152,7 @@ export function DesignFormEmbedded({
     <form onSubmit={submit} className="bg-white rounded-lg p-6 text-gray-900 border">
       <h2 className="text-lg font-semibold mb-4 text-gray-900">{existing ? 'Edit' : 'New'} Design</h2>
 
-      <div className="grid grid-cols-1 xl:grid-cols-1 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700">Design Name</span>
           <input
@@ -171,6 +171,7 @@ export function DesignFormEmbedded({
             onChange={(e) => handleChange('driverId', e.target.value)}
             className="border border-gray-300 p-2 rounded text-gray-900 bg-white"
           >
+            <option value="">Select Driver</option>
             {drivers.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.brandModel || `${d.brand} ${d.model}`}
@@ -196,7 +197,7 @@ export function DesignFormEmbedded({
           </select>
         </label>
 
-        <label className="flex flex-col">
+        <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700">Vb (L)</span>
           <input
             type="number"
@@ -207,7 +208,7 @@ export function DesignFormEmbedded({
           />
         </label>
 
-        <label className="flex flex-col">
+        <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700">Fb (Hz)</span>
           <input
             type="number"
@@ -218,7 +219,7 @@ export function DesignFormEmbedded({
           />
         </label>
 
-        <label className="flex flex-col">
+        <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700"># of Drivers</span>
           <input
             type="number"
@@ -229,7 +230,7 @@ export function DesignFormEmbedded({
           />
         </label>
 
-        <label className="flex flex-col">
+        <label className="flex flex-col col-span-1">
           <span className="text-sm text-gray-700"># of Ports</span>
           <input
             type="number"

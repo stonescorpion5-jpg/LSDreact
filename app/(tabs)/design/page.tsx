@@ -124,7 +124,10 @@ export default function DesignPage() {
 
             {/* Plus Button for New Design */}
             <button
-              onClick={() => setActiveTab('design')}
+              onClick={() => {
+                setFocusedDesignId(null);
+                setActiveTab('design');
+              }}
               className="mt-4 w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               <span className="text-lg">+</span>
