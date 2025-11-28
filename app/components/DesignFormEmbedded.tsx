@@ -155,7 +155,7 @@ export function DesignFormEmbedded({
   const selectedDriver = drivers.find((d) => d.id === form.driverId);
 
   return (
-    <form onSubmit={submit} className="bg-white rounded-lg p-6 text-gray-900 border">
+    <form onSubmit={submit} className="bg-white rounded-lg p-6 text-gray-900">
       <h2 className="text-lg font-semibold mb-4 text-gray-900">
         {existing ? 'Edit' : 'New'} Design {form.name && `— ${form.name}`}
       </h2>
