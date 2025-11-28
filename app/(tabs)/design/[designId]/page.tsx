@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppStore } from '../../../lib/store';
 import { ResponseCurve } from '../../../components/ResponseCurve';
 import { DesignFormEmbedded } from '../../../components/DesignFormEmbedded';
@@ -9,12 +9,25 @@ import { useParams } from 'next/navigation';
 
 export default function DesignDetailPage() {
   const [unitSystem, setUnitSystem] = useState<'cm' | 'in'>('cm');
+  const [boxWidth, setBoxWidth] = useState<string>('');
+  const [boxHeight, setBoxHeight] = useState<string>('');
+  
   const params = useParams();
   const designId = params.designId as string;
   const { designs, drivers, editDesign, removeDesign } = useAppStore();
 
   const design = designs.find((d) => d.id === designId);
   const driver = design ? drivers.find((d) => d.id === design.driverId) : null;
+
+  // Sync box input state when design or unit system changes
+  useEffect(() => {
+    if (design) {
+      const width = unitSystem === 'cm' ? design.box.width.cm.toFixed(2) : (design.box.width.cm / 2.54).toFixed(2);
+      const height = unitSystem === 'cm' ? design.box.height.cm.toFixed(2) : (design.box.height.cm / 2.54).toFixed(2);
+      setBoxWidth(width);
+      setBoxHeight(height);
+    }
+  }, [design, unitSystem]);
 
   if (!design || !driver) {
     return (
@@ -85,18 +98,21 @@ export default function DesignDetailPage() {
                 <input
                   type="number"
                   step="0.1"
-                  value={unitSystem === 'cm' ? design.box.width.cm.toFixed(2) : (design.box.width.cm / 2.54).toFixed(2)}
+                  value={boxWidth}
                   onChange={(e) => {
+                    setBoxWidth(e.target.value);
                     const inputValue = parseFloat(e.target.value);
-                    const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                    const newWidthIn = newWidth / 2.54;
-                    editDesign({
-                      ...design,
-                      box: {
-                        ...design.box,
-                        width: { cm: newWidth, in: newWidthIn }
-                      }
-                    });
+                    if (!isNaN(inputValue)) {
+                      const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                      const newWidthIn = newWidth / 2.54;
+                      editDesign({
+                        ...design,
+                        box: {
+                          ...design.box,
+                          width: { cm: newWidth, in: newWidthIn }
+                        }
+                      });
+                    }
                   }}
                   className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2 text-sm"
                 />
@@ -107,18 +123,21 @@ export default function DesignDetailPage() {
                 <input
                   type="number"
                   step="0.1"
-                  value={unitSystem === 'cm' ? design.box.height.cm.toFixed(2) : (design.box.height.cm / 2.54).toFixed(2)}
+                  value={boxHeight}
                   onChange={(e) => {
+                    setBoxHeight(e.target.value);
                     const inputValue = parseFloat(e.target.value);
-                    const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                    const newHeightIn = newHeight / 2.54;
-                    editDesign({
-                      ...design,
-                      box: {
-                        ...design.box,
-                        height: { cm: newHeight, in: newHeightIn }
-                      }
-                    });
+                    if (!isNaN(inputValue)) {
+                      const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                      const newHeightIn = newHeight / 2.54;
+                      editDesign({
+                        ...design,
+                        box: {
+                          ...design.box,
+                          height: { cm: newHeight, in: newHeightIn }
+                        }
+                      });
+                    }
                   }}
                   className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2 text-sm"
                 />

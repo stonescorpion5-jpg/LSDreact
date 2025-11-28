@@ -4,7 +4,7 @@ import { useAppStore } from '../../../lib/store';
 import Link from 'next/link';
 import { DesignFormEmbedded } from '../../../components/DesignFormEmbedded';
 import { ResponseCurve } from '../../../components/ResponseCurve';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 type TabType = 'design' | 'box' | 'port';
 
@@ -14,6 +14,23 @@ export default function NewDesignPage() {
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
   const [unitSystem, setUnitSystem] = useState<'cm' | 'in'>('cm');
+  
+  // Local state for box inputs to prevent re-render issues during typing
+  const [boxWidth, setBoxWidth] = useState<string>('');
+  const [boxHeight, setBoxHeight] = useState<string>('');
+
+  // Sync box input state when focused design or unit system changes
+  useEffect(() => {
+    if (focusedDesignId) {
+      const design = designs.find((d) => d.id === focusedDesignId);
+      if (design) {
+        const width = unitSystem === 'cm' ? design.box.width.cm.toFixed(2) : (design.box.width.cm / 2.54).toFixed(2);
+        const height = unitSystem === 'cm' ? design.box.height.cm.toFixed(2) : (design.box.height.cm / 2.54).toFixed(2);
+        setBoxWidth(width);
+        setBoxHeight(height);
+      }
+    }
+  }, [focusedDesignId, designs, unitSystem]);
 
   const toggleDesign = (designId: string) => {
     const newSelected = new Set(selectedDesigns);
@@ -231,18 +248,21 @@ export default function NewDesignPage() {
                               <input
                                 type="number"
                                 step="0.1"
-                                value={unitSystem === 'cm' ? widthCm.toFixed(2) : widthIn.toFixed(2)}
+                                value={boxWidth}
                                 onChange={(e) => {
+                                  setBoxWidth(e.target.value);
                                   const inputValue = parseFloat(e.target.value);
-                                  const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                                  const newWidthIn = newWidth / 2.54;
-                                  editDesign({
-                                    ...design,
-                                    box: {
-                                      ...design.box,
-                                      width: { cm: newWidth, in: newWidthIn }
-                                    }
-                                  });
+                                  if (!isNaN(inputValue)) {
+                                    const newWidth = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                                    const newWidthIn = newWidth / 2.54;
+                                    editDesign({
+                                      ...design,
+                                      box: {
+                                        ...design.box,
+                                        width: { cm: newWidth, in: newWidthIn }
+                                      }
+                                    });
+                                  }
                                 }}
                                 className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
                               />
@@ -253,18 +273,21 @@ export default function NewDesignPage() {
                               <input
                                 type="number"
                                 step="0.1"
-                                value={unitSystem === 'cm' ? heightCm.toFixed(2) : heightIn.toFixed(2)}
+                                value={boxHeight}
                                 onChange={(e) => {
+                                  setBoxHeight(e.target.value);
                                   const inputValue = parseFloat(e.target.value);
-                                  const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
-                                  const newHeightIn = newHeight / 2.54;
-                                  editDesign({
-                                    ...design,
-                                    box: {
-                                      ...design.box,
-                                      height: { cm: newHeight, in: newHeightIn }
-                                    }
-                                  });
+                                  if (!isNaN(inputValue)) {
+                                    const newHeight = unitSystem === 'cm' ? inputValue : inputValue * 2.54;
+                                    const newHeightIn = newHeight / 2.54;
+                                    editDesign({
+                                      ...design,
+                                      box: {
+                                        ...design.box,
+                                        height: { cm: newHeight, in: newHeightIn }
+                                      }
+                                    });
+                                  }
                                 }}
                                 className="border border-gray-300 p-2 rounded text-gray-900 bg-white w-full mb-2"
                               />
