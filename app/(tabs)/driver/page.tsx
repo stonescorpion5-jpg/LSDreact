@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useAppStore } from '../../lib/store';
 import { DriverForm } from '../../components/DriverForm';
+import { DriverImportModal } from '../../components/DriverImportModal';
 
 export default function DriverPage() {
   const { drivers, removeDriver } = useAppStore();
   const [showForm, setShowForm] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [editing, setEditing] = useState(null as null | any);
 
   useEffect(() => {
@@ -17,15 +19,21 @@ export default function DriverPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Drivers</h1>
-        <div>
+        <div className="flex gap-2">
           <button
             onClick={() => {
               setEditing(null);
               setShowForm(true);
             }}
-            className="px-3 py-2 bg-blue-600 text-white rounded"
+            className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Add Driver
+          </button>
+          <button
+            onClick={() => setShowImport(true)}
+            className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Import from JSON
           </button>
         </div>
       </div>
@@ -62,6 +70,7 @@ export default function DriverPage() {
       </div>
 
       {showForm && <DriverForm existing={editing} onClose={() => setShowForm(false)} />}
+      {showImport && <DriverImportModal onClose={() => setShowImport(false)} />}
     </div>
   );
 }
