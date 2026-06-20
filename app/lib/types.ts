@@ -96,4 +96,18 @@ export interface Design {
   splData: {
     dataset: Array<{ x: number; y: number }>;
   };
+  // Calculated parameters
+  A?: number;
+  B?: number;
+  C?: number;
+  D?: number;
+  E?: number;
+  vd?: number;
+  n0?: number;
+  spl?: number;
+  peakSPL?: number;
+  k1?: number;
+  k2?: number;
+  par?: number;
+  per?: number;
 }

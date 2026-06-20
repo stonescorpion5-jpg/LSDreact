@@ -8,7 +8,7 @@ import { ResponseCurve } from '../../../components/ResponseCurve';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'next/navigation';
 
-type TabType = 'design' | 'box' | 'port';
+type TabType = 'design' | 'box' | 'port' | 'params';
 
 export default function DesignDetailPage() {
   const params = useParams();
@@ -133,6 +133,16 @@ export default function DesignDetailPage() {
               >
                 Port
               </button>
+              <button
+                onClick={() => setActiveTab('params')}
+                className={`flex-1 px-4 py-3 text-center font-medium transition-colors ${
+                  activeTab === 'params'
+                    ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Parameters
+              </button>
               <div className="ml-auto flex items-center border-l">
                 <button
                   onClick={() => setUnitSystem(unitSystem === 'cm' ? 'in' : 'cm')}
@@ -221,31 +231,138 @@ export default function DesignDetailPage() {
               {activeTab === 'port' && (
                 <div className="space-y-4">
                   <h3 className="font-semibold text-gray-900 mb-4">{design.name} - Port Specifications</h3>
+                  {design.type === 'Ported' ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Min Dia (Rec) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                        <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.rec.cm.toFixed(2) : design.dmin.rec.in.toFixed(2)}</p>
+                      </div>
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Min Dia (Act) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                        <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.actual.cm.toFixed(2) : design.dmin.actual.in.toFixed(2)}</p>
+                      </div>
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Port Area {unitSystem === 'cm' ? 'cm²' : 'in²'}</p>
+                        <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.area.cm.toFixed(2) : design.port.area.in.toFixed(2)}</p>
+                      </div>
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Port Length {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                        <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.lv.cm.toFixed(2) : design.lv.in.toFixed(2)}</p>
+                      </div>
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Port Width {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                        <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.width.cm.toFixed(2) : design.port.width.in.toFixed(2)}</p>
+                      </div>
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Port Height {unitSystem === 'cm' ? 'cm' : 'in'}</p>
+                        <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.height.cm.toFixed(2) : design.port.height.in.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>Port specifications are only applicable to ported enclosures.</p>
+                      <p className="text-sm mt-2">This is a sealed enclosure design.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Parameters Tab */}
+              {activeTab === 'params' && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900 mb-4">{design.name} - Calculated Parameters</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <p className="text-xs text-gray-600 mb-1">Min Dia (Rec) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
-                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.rec.cm.toFixed(2) : design.dmin.rec.in.toFixed(2)}</p>
+                    {/* Transfer Function Coefficients */}
+                    <div className="col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-blue-900 mb-2">Transfer Function Coefficients</h4>
+                      <p className="text-xs text-blue-700">Used in SPL response curve calculation</p>
                     </div>
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <p className="text-xs text-gray-600 mb-1">Min Dia (Act) {unitSystem === 'cm' ? 'cm' : 'in'}</p>
-                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.dmin.actual.cm.toFixed(2) : design.dmin.actual.in.toFixed(2)}</p>
+                    
+                    {design.A !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Coefficient A</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.A.toFixed(4)}</p>
+                        <p className="text-xs text-gray-500 mt-1">(Fb/Fs)²</p>
+                      </div>
+                    )}
+                    
+                    {design.B !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Coefficient B</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.B.toFixed(4)}</p>
+                      </div>
+                    )}
+                    
+                    {design.C !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Coefficient C</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.C.toFixed(4)}</p>
+                      </div>
+                    )}
+                    
+                    {design.D !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Coefficient D</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.D.toFixed(4)}</p>
+                      </div>
+                    )}
+                    
+                    {design.E !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Coefficient E</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.E.toFixed(4)}</p>
+                      </div>
+                    )}
+
+                    {/* Acoustic Parameters */}
+                    <div className="col-span-2 bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+                      <h4 className="text-sm font-semibold text-green-900 mb-2">Acoustic Performance</h4>
+                      <p className="text-xs text-green-700">System-level acoustic parameters</p>
                     </div>
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <p className="text-xs text-gray-600 mb-1">Port Area {unitSystem === 'cm' ? 'cm²' : 'in²'}</p>
-                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.area.cm.toFixed(2) : design.port.area.in.toFixed(2)}</p>
-                    </div>
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <p className="text-xs text-gray-600 mb-1">Port Length {unitSystem === 'cm' ? 'cm' : 'in'}</p>
-                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.lv.cm.toFixed(2) : design.lv.in.toFixed(2)}</p>
-                    </div>
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <p className="text-xs text-gray-600 mb-1">Port Width {unitSystem === 'cm' ? 'cm' : 'in'}</p>
-                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.width.cm.toFixed(2) : design.port.width.in.toFixed(2)}</p>
-                    </div>
-                    <div className="border rounded-lg p-4 bg-gray-50">
-                      <p className="text-xs text-gray-600 mb-1">Port Height {unitSystem === 'cm' ? 'cm' : 'in'}</p>
-                      <p className="text-lg font-semibold text-gray-900">{unitSystem === 'cm' ? design.port.height.cm.toFixed(2) : design.port.height.in.toFixed(2)}</p>
-                    </div>
+                    
+                    {design.vd !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Volume Displacement (Vd)</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.vd.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500 mt-1">cm³</p>
+                      </div>
+                    )}
+                    
+                    {design.n0 !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Reference Efficiency (η₀)</p>
+                        <p className="text-lg font-semibold text-gray-900">{(design.n0 * 100).toFixed(4)}%</p>
+                      </div>
+                    )}
+                    
+                    {design.spl !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">SPL @ 1W/1m</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.spl.toFixed(2)} dB</p>
+                      </div>
+                    )}
+                    
+                    {design.peakSPL !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">Peak SPL</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.peakSPL.toFixed(2)} dB</p>
+                        <p className="text-xs text-gray-500 mt-1">At rated power</p>
+                      </div>
+                    )}
+                    
+                    {design.k1 !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">K1 (Power Index)</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.k1.toFixed(6)}</p>
+                      </div>
+                    )}
+                    
+                    {design.k2 !== undefined && (
+                      <div className="border rounded-lg p-4 bg-gray-50">
+                        <p className="text-xs text-gray-600 mb-1">K2 (Power Level)</p>
+                        <p className="text-lg font-semibold text-gray-900">{design.k2.toFixed(2)} dB</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

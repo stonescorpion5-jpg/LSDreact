@@ -407,6 +407,21 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
     splData: {
       dataset: splData,
     },
+    // Transfer function coefficients
+    A,
+    B,
+    C,
+    D,
+    E,
+    // Acoustic parameters
+    vd: designVd,
+    n0: designN0,
+    spl: designSpl,
+    peakSPL: designPeakSpl,
+    k1: designK1,
+    k2: designK2,
+    par: designPar,
+    per: designPer,
   };
 }
 
