@@ -173,11 +173,44 @@ export function DesignFormEmbedded({
 
   const selectedDriver = drivers.find((d) => d.id === form.driverId);
 
+  // Validation warnings
+  const warnings: string[] = [];
+  if (form.vb < 1 && form.vb > 0) {
+    warnings.push('Vb is very small - this may not be practical');
+  }
+  if (form.vb > 200) {
+    warnings.push('Vb is very large - this is unusual for most drivers');
+  }
+  if (form.fb < 20 && form.fb > 0) {
+    warnings.push('Fb is very low - this may require a very large port');
+  }
+  if (form.fb > 100) {
+    warnings.push('Fb is very high - this is unusual');
+  }
+  if (selectedDriver && form.type === 'Ported') {
+    const rec = (selectedDriver.recPortedVb || 50) * form.nod;
+    if (form.vb > 0 && (form.vb < rec * 0.3 || form.vb > rec * 3)) {
+      warnings.push(`Vb is far from recommended (${rec.toFixed(1)}L) - response may be poor`);
+    }
+  }
+
   return (
     <form onSubmit={submit} className="bg-white rounded-lg p-6 text-gray-900">
       <h2 className="text-lg font-semibold mb-4 text-gray-900">
         {existing ? 'Edit' : 'New'} Design {form.name && `— ${form.name}`}
       </h2>
+
+      {/* Validation Warnings */}
+      {warnings.length > 0 && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm font-medium text-yellow-800 mb-1">⚠️ Warnings:</p>
+          <ul className="text-xs text-yellow-700 list-disc list-inside space-y-0.5">
+            {warnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col col-span-1">

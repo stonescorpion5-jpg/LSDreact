@@ -36,20 +36,20 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-2xl font-bold mb-6 text-gray-900">Settings</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pb-20 max-w-3xl">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">Settings</h1>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Unit System */}
-        <div className="bg-white rounded-lg p-6 border">
-          <h2 className="text-lg font-semibold mb-3 text-gray-900">Unit System</h2>
-          <p className="text-sm text-gray-600 mb-4">
+        <div className="bg-white rounded-lg p-4 sm:p-6 border">
+          <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 text-gray-900">Unit System</h2>
+          <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
             Choose your preferred unit system for measurements
           </p>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button
               onClick={() => setUnitSystem('cm')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 unitSystem === 'cm'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -59,7 +59,7 @@ export default function SettingsPage() {
             </button>
             <button
               onClick={() => setUnitSystem('in')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
                 unitSystem === 'in'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

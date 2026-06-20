@@ -1,6 +1,33 @@
 import { Driver, Design } from './types';
 
 /**
+ * Validation helpers - prevent division by zero and invalid calculations
+ */
+function safeDiv(numerator: number, denominator: number, fallback: number = 0): number {
+  if (!denominator || denominator === 0 || !isFinite(denominator)) {
+    return fallback;
+  }
+  const result = numerator / denominator;
+  return isFinite(result) ? result : fallback;
+}
+
+function safeValue(value: number | undefined | null, fallback: number = 0): number {
+  if (value === undefined || value === null || !isFinite(value)) {
+    return fallback;
+  }
+  return value;
+}
+
+function validatePositive(value: number | undefined | null, name: string): number {
+  const safe = safeValue(value);
+  if (safe <= 0) {
+    console.warn(`⚠️ ${name} should be positive, got: ${value}`);
+    return 0;
+  }
+  return safe;
+}
+
+/**
  * Ported from oldapp/js/controllers.js - calTS method
  * Calculates derived driver parameters based on Thiele-Small parameters
  */
@@ -36,12 +63,12 @@ export function calculateDriverParameters(driver: Partial<Driver>): Partial<Driv
 
   // Efficiency reference (n0)
   const n0 =
-    driver.fs && driver.vas && driver.qes
-      ? 9.64 * Math.pow(10, -10) * Math.pow(driver.fs, 3) * (driver.vas / driver.qes)
+    driver.fs && driver.vas && driver.qes && driver.qes > 0
+      ? 9.64 * Math.pow(10, -10) * Math.pow(driver.fs, 3) * safeDiv(driver.vas, driver.qes)
       : 0;
 
   // Sound pressure level at 1W/1m
-  const spl = n0 ? 112 + 10 * Math.log10(n0) : 0;
+  const spl = n0 > 0 ? 112 + 10 * Math.log10(n0) : 0;
 
   // K1 - acoustic power index
   const k1 =
@@ -50,24 +77,27 @@ export function calculateDriverParameters(driver: Partial<Driver>): Partial<Driv
       : 0;
 
   // K2 - acoustic power level
-  const k2 = k1 ? 112 + 10 * Math.log10(k1) : 0;
+  const k2 = k1 > 0 ? 112 + 10 * Math.log10(k1) : 0;
+
+  // Validate Qts is positive
+  const validQts = validatePositive(qts, 'Qts');
 
   // Recommended ported enclosure volume (Vb)
   const recPortedVb =
-    driver.vas && qts
-      ? Math.round(100 * (20 * driver.vas * Math.pow(qts, 3.3))) / 100
+    driver.vas && validQts > 0
+      ? Math.round(100 * (20 * driver.vas * Math.pow(validQts, 3.3))) / 100
       : 0;
 
   // -3dB frequency for ported enclosure
   const recPortedF3 =
-    driver.fs && recPortedVb && driver.vas
-      ? Math.round(100 * (Math.pow(driver.vas / recPortedVb, 0.44) * driver.fs)) / 100
+    driver.fs && recPortedVb && driver.vas && recPortedVb > 0
+      ? Math.round(100 * (Math.pow(safeDiv(driver.vas, recPortedVb), 0.44) * driver.fs)) / 100
       : 0;
 
   // Tuning frequency for ported enclosure
   const recPortedFb =
-    driver.fs && recPortedVb && driver.vas
-      ? Math.round(100 * (Math.pow(driver.vas / recPortedVb, 0.31) * driver.fs)) / 100
+    driver.fs && recPortedVb && driver.vas && recPortedVb > 0
+      ? Math.round(100 * (Math.pow(safeDiv(driver.vas, recPortedVb), 0.31) * driver.fs)) / 100
       : 0;
 
   // Recommended sealed enclosure volume (Vb)
@@ -101,26 +131,26 @@ export function calculateDriverParameters(driver: Partial<Driver>): Partial<Driv
 
   // -3dB frequency for sealed enclosure
   const recSealedFb =
-    driver.fs && recSealedVb && driver.vas
-      ? Math.round(100 * (Math.pow(driver.vas / recSealedVb, 0.5) * driver.fs)) / 100
+    driver.fs && recSealedVb && driver.vas && recSealedVb > 0
+      ? Math.round(100 * (Math.pow(safeDiv(driver.vas, recSealedVb), 0.5) * driver.fs)) / 100
       : 0;
 
   // -3dB frequency for sealed enclosure (F3)
   // For sealed enclosures with Butterworth alignment (Qtc = 0.577)
   const recSealedF3 =
-    driver.fs && recSealedVb && driver.vas
-      ? Math.round(100 * (Math.pow(driver.vas / recSealedVb, 0.31) * driver.fs)) / 100
+    driver.fs && recSealedVb && driver.vas && recSealedVb > 0
+      ? Math.round(100 * (Math.pow(safeDiv(driver.vas, recSealedVb), 0.31) * driver.fs)) / 100
       : 0;
 
   // Resonant frequency in sealed enclosure
   // Fs_box = Fs * sqrt(1 + Vas/Vb)
   const recSealedFs =
-    driver.fs && recSealedVb && driver.vas
-      ? Math.round(100 * (driver.fs * Math.sqrt(1 + driver.vas / recSealedVb))) / 100
+    driver.fs && recSealedVb && driver.vas && recSealedVb > 0
+      ? Math.round(100 * (driver.fs * Math.sqrt(1 + safeDiv(driver.vas, recSealedVb)))) / 100
       : 0;
 
   // EBP - Efficiency bandwidth product
-  const ebp = driver.fs && driver.qes ? driver.fs / driver.qes : 0;
+  const ebp = driver.fs && driver.qes && driver.qes > 0 ? safeDiv(driver.fs, driver.qes) : 0;
 
   // Acoustic power (Par)
   const par =
@@ -214,7 +244,7 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
   if (design.type === 'Ported') {
     // Port diameter calculation (Dmin)
     dminRecCm =
-      design.fb && design.nod && driver.vd && design.np
+      design.fb && design.nod && driver.vd && design.np && design.fb > 0 && design.np > 0
         ? Math.round(10000 * ((20.3 * Math.pow(Math.pow((driver.vd / 1000000) * design.nod, 2) / design.fb, 0.25)) / Math.sqrt(design.np))) / 100
         : 0;
 
@@ -242,13 +272,13 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
     portWidthIn = design.port?.width?.in || driver.size;
 
     portHeightCm =
-      portWidthCm > 0
-        ? Math.round(100 * (portAreaCm / portWidthCm)) / 100
+      portWidthCm > 0 && portAreaCm > 0
+        ? Math.round(100 * safeDiv(portAreaCm, portWidthCm)) / 100
         : 0;
 
     portHeightIn =
-      portWidthIn > 0
-        ? Math.round(100 * (portAreaIn / portWidthIn)) / 100
+      portWidthIn > 0 && portAreaIn > 0
+        ? Math.round(100 * safeDiv(portAreaIn, portWidthIn)) / 100
         : 0;
   }
 

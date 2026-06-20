@@ -86,25 +86,25 @@ export default function DesignPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pb-20">
       {/* Split Layout: Design buttons on left (1/4), chart on right (3/4) */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 min-h-screen">
-        {/* Left Column: Design Selection Checkboxes (1/4 width on xl and up) */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* Left Column: Design Selection Checkboxes (1/4 width on lg and up) */}
         <div className="flex flex-col gap-4">
-          <div className="bg-white rounded-lg p-6 text-gray-900 border flex-1 flex flex-col">
+          <div className="bg-white rounded-lg p-4 sm:p-6 text-gray-900 border flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Designs</h2>
-              <div className="flex gap-2">
+              <div className="flex gap-1 sm:gap-2">
                 <button
                   onClick={() => setShowImport(true)}
-                  className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                  className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap"
                   title="Import Designs"
                 >
                   Import
                 </button>
                 <button
                   onClick={() => setShowExport(true)}
-                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 whitespace-nowrap"
                   title="Export Data"
                 >
                   Export

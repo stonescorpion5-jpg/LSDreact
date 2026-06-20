@@ -18,36 +18,36 @@ export default function DriverPage() {
   }, [drivers]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Drivers</h1>
-        <div className="flex gap-2">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pb-20">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold">Drivers</h1>
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => {
               setEditing(null);
               setShowForm(true);
             }}
-            className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm sm:text-base whitespace-nowrap"
           >
             Add Driver
           </button>
           <button
             onClick={() => setShowImport(true)}
-            className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm sm:text-base whitespace-nowrap"
           >
-            Import from JSON
+            Import
           </button>
           <button
             onClick={() => setShowExport(true)}
-            className="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            className="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm sm:text-base whitespace-nowrap"
           >
             Export
           </button>
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {drivers.length === 0 && <div className="text-sm text-gray-500">No drivers yet</div>}
+      <div className="grid gap-3 sm:gap-4">
+        {drivers.length === 0 && <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded-lg border">No drivers yet. Click "Add Driver" to create one.</div>}
         {drivers.map((driver) => (
           <div key={driver.id} className="border p-4 rounded-lg">
             <div className="flex items-center justify-between">

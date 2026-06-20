@@ -31,17 +31,17 @@ export default function SimulatePage() {
   }, [displayedDesigns]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Simulate</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 pb-20">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Simulate</h1>
 
       {/* Chart Section */}
       {chartDatasets.length > 0 ? (
-        <div className="mb-8 bg-white rounded-lg p-6 shadow">
+        <div className="mb-6 sm:mb-8 bg-white rounded-lg p-3 sm:p-6 shadow">
           <ResponseCurve datasets={chartDatasets} />
         </div>
       ) : (
-        <div className="mb-8 bg-gray-50 rounded-lg p-12 text-center border-2 border-dashed border-gray-300">
-          <p className="text-gray-500 text-lg">
+        <div className="mb-6 sm:mb-8 bg-gray-50 rounded-lg p-8 sm:p-12 text-center border-2 border-dashed border-gray-300">
+          <p className="text-gray-500 text-base sm:text-lg">
             No designs selected. Toggle designs below to see their response curves.
           </p>
         </div>
@@ -49,7 +49,7 @@ export default function SimulatePage() {
 
       {/* Design List */}
       <div className="space-y-3">
-        <h2 className="text-xl font-semibold mb-4">Designs</h2>
+        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Designs</h2>
         
         {designs.length === 0 ? (
           <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">

@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -69,6 +70,7 @@ export function ResponseCurve({ data, datasets: providedDatasets }: ResponseCurv
 
   const options = {
     responsive: true,
+    maintainAspectRatio: true,
     scales: {
       x: {
         type: 'logarithmic' as const,
@@ -82,7 +84,7 @@ export function ResponseCurve({ data, datasets: providedDatasets }: ResponseCurv
         grid: {
           display: true,
           drawBorder: true,
-          color: 'rgb(255, 255, 255)',
+          color: 'rgba(0, 0, 0, 0.05)',
         },
       },
       y: {
@@ -94,15 +96,18 @@ export function ResponseCurve({ data, datasets: providedDatasets }: ResponseCurv
         grid: {
           display: true,
           drawBorder: true,
-          color: 'rgb(255, 255, 255)',
+          color: 'rgba(0, 0, 0, 0.05)',
         },
       },
     },
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full" style={{ minHeight: '300px' }}>
       <Line options={options} data={chartData} />
     </div>
   );
 }
+
+// Memoize to prevent unnecessary re-renders
+export default memo(ResponseCurve);
