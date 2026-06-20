@@ -294,17 +294,17 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
   }
 
   // Transfer function coefficients for SPL curve
-  // For sealed boxes: fb is the frequency at which we calculate (typically Fb from driver)
-  // For ported boxes: fb is the tuning frequency
   const A = design.fb && driver.fs ? Math.pow(design.fb / driver.fs, 2) : 0;
   
   let B = 0;
   let C = 0;
   let D = 0;
   let E = 0;
+  let Qtc = 0; // Total Q in closed box (sealed only)
+  let Fc = 0;  // Resonance frequency in closed box (sealed only)
 
   if (design.type === 'Ported') {
-    // Ported enclosure transfer function
+    // Ported enclosure transfer function (from oldapp)
     B = design.fb && driver.fs && driver.qts
       ? A / driver.qts + design.fb / (7 * driver.fs)
       : 0;
@@ -316,24 +316,31 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
       : 0;
     E = A ? (97 / 49) * A : 0;
   } else {
-    // Sealed enclosure transfer function
-    // For sealed, fb is typically recSealedFb from driver
-    // C coefficient uses volume instead of tuning frequency
-    B = design.fb && driver.fs && driver.qts
-      ? A / driver.qts + design.fb / (driver.fs * driver.qts * 7)
-      : 0;
-    C = design.vb && design.nod && driver.vas && driver.fs && driver.qts
-      ? 1 + A + (driver.vas * design.nod) / design.vb
-      : 0;
-    D = design.fb && driver.fs && driver.qts
-      ? 1 / driver.qts + design.fb / (driver.fs * driver.qts * 7)
-      : 0;
-    E = A ? (97 / 49) * A : 0;
+    // Sealed enclosure transfer function (simplified second-order high-pass)
+    // Calculate Alpha = 1 + Vas/Vb (compliance ratio)
+    const Alpha = design.vb && design.nod && driver.vas
+      ? 1 + (driver.vas * design.nod) / design.vb
+      : 1;
+    
+    // Qtc = Qts * sqrt(Alpha) - Total Q in closed box
+    Qtc = driver.qts ? driver.qts * Math.sqrt(Alpha) : 0;
+    
+    // Fc = Fs * sqrt(Alpha) - Resonance frequency in closed box
+    Fc = driver.fs ? driver.fs * Math.sqrt(Alpha) : 0;
+    
+    // For sealed box, use simpler coefficients
+    // The response is: H(f) = (f/Fc)^4 / [((f/Fc)^2 - 1)^2 + (f/Fc)^2/Qtc^2]
+    B = Qtc > 0 ? 1 / Qtc : 0;
+    C = Alpha; // Alpha coefficient for sealed box
+    D = B; // Same as B for sealed
+    E = 1; // Simpler for sealed
   }
 
   // Generate SPL curve
   const splData: Array<{ x: number; y: number }> = [];
-  if (driver.fs > 0 && A > 0) {
+  
+  if (design.type === 'Ported' && driver.fs > 0 && A > 0) {
+    // Ported enclosure SPL calculation (from oldapp)
     for (let i = 10; i < 500; i = Math.round(i * 1.1)) {
       const F = i;
       const Fn2 = Math.pow(F / driver.fs, 2);
@@ -356,6 +363,27 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
 
       const SPLtherm = designPeakSpl + dBmag;
       const SPL = Math.round(100 * Math.min(SPLmax, SPLtherm)) / 100;
+
+      splData.push({ x: F, y: SPL });
+    }
+  } else if (design.type === 'Sealed' && Fc > 0 && Qtc > 0) {
+    // Sealed enclosure SPL calculation (second-order high-pass)
+    for (let i = 10; i < 500; i = Math.round(i * 1.1)) {
+      const F = i;
+      const FnSealed = F / Fc; // Normalized frequency relative to Fc
+      const Fn2Sealed = Math.pow(FnSealed, 2);
+      const Fn4Sealed = Math.pow(Fn2Sealed, 2);
+
+      // Sealed box transfer function: H(f) = (f/Fc)^4 / [((f/Fc)^2 - 1)^2 + (f/Fc)^2/Qtc^2]
+      const dBmag =
+        10 *
+        Math.log10(
+          Fn4Sealed /
+          (Math.pow(Fn2Sealed - 1, 2) + Fn2Sealed / Math.pow(Qtc, 2))
+        );
+
+      // For sealed, SPL = reference SPL + dBmag
+      const SPL = Math.round(100 * (designSpl + dBmag)) / 100;
 
       splData.push({ x: F, y: SPL });
     }
@@ -422,6 +450,9 @@ export function calculateDesignParameters(design: Partial<Design>, driver: Drive
     k2: designK2,
     par: designPar,
     per: designPer,
+    // Sealed-specific parameters
+    Qtc: design.type === 'Sealed' ? Qtc : undefined,
+    Fc: design.type === 'Sealed' ? Fc : undefined,
   };
 }
 

@@ -272,6 +272,35 @@ export default function DesignDetailPage() {
                 <div className="space-y-4">
                   <h3 className="font-semibold text-gray-900 mb-4">{design.name} - Calculated Parameters</h3>
                   <div className="grid grid-cols-2 gap-4">
+                    
+                    {/* Sealed-specific parameters */}
+                    {design.type === 'Sealed' && (
+                      <>
+                        <div className="col-span-2 bg-purple-50 border border-purple-200 rounded-lg p-4">
+                          <h4 className="text-sm font-semibold text-purple-900 mb-2">Sealed Enclosure Parameters</h4>
+                          <p className="text-xs text-purple-700">Parameters specific to sealed box alignment</p>
+                        </div>
+                        
+                        {design.Qtc !== undefined && (
+                          <div className="border rounded-lg p-4 bg-gray-50">
+                            <p className="text-xs text-gray-600 mb-1">Total Q (Qtc)</p>
+                            <p className="text-lg font-semibold text-gray-900">{design.Qtc.toFixed(3)}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {design.Qtc < 0.5 ? 'Overdamped' : design.Qtc < 0.707 ? 'Butterworth' : design.Qtc < 1.0 ? 'Bessel' : 'Underdamped'}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {design.Fc !== undefined && (
+                          <div className="border rounded-lg p-4 bg-gray-50">
+                            <p className="text-xs text-gray-600 mb-1">Resonance Freq (Fc)</p>
+                            <p className="text-lg font-semibold text-gray-900">{design.Fc.toFixed(2)} Hz</p>
+                            <p className="text-xs text-gray-500 mt-1">System resonance in box</p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
                     {/* Transfer Function Coefficients */}
                     <div className="col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <h4 className="text-sm font-semibold text-blue-900 mb-2">Transfer Function Coefficients</h4>
@@ -282,7 +311,7 @@ export default function DesignDetailPage() {
                       <div className="border rounded-lg p-4 bg-gray-50">
                         <p className="text-xs text-gray-600 mb-1">Coefficient A</p>
                         <p className="text-lg font-semibold text-gray-900">{design.A.toFixed(4)}</p>
-                        <p className="text-xs text-gray-500 mt-1">(Fb/Fs)²</p>
+                        <p className="text-xs text-gray-500 mt-1">{design.type === 'Ported' ? '(Fb/Fs)²' : 'Frequency term'}</p>
                       </div>
                     )}
                     
@@ -290,6 +319,7 @@ export default function DesignDetailPage() {
                       <div className="border rounded-lg p-4 bg-gray-50">
                         <p className="text-xs text-gray-600 mb-1">Coefficient B</p>
                         <p className="text-lg font-semibold text-gray-900">{design.B.toFixed(4)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{design.type === 'Sealed' ? '1/Qtc' : 'Damping term'}</p>
                       </div>
                     )}
                     
@@ -297,6 +327,7 @@ export default function DesignDetailPage() {
                       <div className="border rounded-lg p-4 bg-gray-50">
                         <p className="text-xs text-gray-600 mb-1">Coefficient C</p>
                         <p className="text-lg font-semibold text-gray-900">{design.C.toFixed(4)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{design.type === 'Sealed' ? 'Alpha (1+Vas/Vb)' : 'System term'}</p>
                       </div>
                     )}
                     

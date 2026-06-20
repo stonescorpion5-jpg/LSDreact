@@ -110,4 +110,7 @@ export interface Design {
   k2?: number;
   par?: number;
   per?: number;
+  // Sealed-specific parameters
+  Qtc?: number;  // Total Q in closed box
+  Fc?: number;   // Resonance frequency in closed box
 }
