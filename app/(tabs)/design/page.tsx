@@ -5,6 +5,8 @@ import { useUnitSystem } from '../../../lib/useUnitSystem';
 import Link from 'next/link';
 import { DesignFormEmbedded } from '../../components/DesignFormEmbedded';
 import { ResponseCurve } from '../../components/ResponseCurve';
+import { ExportModal } from '../../components/ExportModal';
+import { DesignImportModal } from '../../components/DesignImportModal';
 import { useState, useMemo, useEffect, useRef } from 'react';
 
 type TabType = 'design' | 'box' | 'port';
@@ -14,6 +16,8 @@ export default function DesignPage() {
   const { unitSystem, setUnitSystem, isHydrated } = useUnitSystem();
   const [activeTab, setActiveTab] = useState<TabType>('design');
   const [focusedDesignId, setFocusedDesignId] = useState<string | null>(null);
+  const [showExport, setShowExport] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   
   // Local state for box inputs to prevent re-render issues during typing
   const [boxWidth, setBoxWidth] = useState<string>('');
@@ -88,7 +92,25 @@ export default function DesignPage() {
         {/* Left Column: Design Selection Checkboxes (1/4 width on xl and up) */}
         <div className="flex flex-col gap-4">
           <div className="bg-white rounded-lg p-6 text-gray-900 border flex-1 flex flex-col">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900">Designs</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Designs</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowImport(true)}
+                  className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                  title="Import Designs"
+                >
+                  Import
+                </button>
+                <button
+                  onClick={() => setShowExport(true)}
+                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                  title="Export Data"
+                >
+                  Export
+                </button>
+              </div>
+            </div>
             
             <div className="flex-1">
               {designs.length === 0 ? (
@@ -431,6 +453,10 @@ export default function DesignPage() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      {showExport && <ExportModal onClose={() => setShowExport(false)} />}
+      {showImport && <DesignImportModal onClose={() => setShowImport(false)} />}
     </div>
   );
 }

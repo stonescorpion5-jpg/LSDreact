@@ -9,6 +9,8 @@ export function TabNavigation() {
   const tabs = [
     { name: 'Design', href: '/design' },
     { name: 'Driver', href: '/driver' },
+    { name: 'Simulate', href: '/simulate' },
+    { name: 'Settings', href: '/settings' },
   ];
 
   return (

@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useAppStore } from '../../lib/store';
 import { DriverForm } from '../../components/DriverForm';
 import { DriverImportModal } from '../../components/DriverImportModal';
+import { ExportModal } from '../../components/ExportModal';
 
 export default function DriverPage() {
   const { drivers, removeDriver } = useAppStore();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [editing, setEditing] = useState(null as null | any);
 
   useEffect(() => {
@@ -34,6 +36,12 @@ export default function DriverPage() {
             className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700"
           >
             Import from JSON
+          </button>
+          <button
+            onClick={() => setShowExport(true)}
+            className="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+          >
+            Export
           </button>
         </div>
       </div>
@@ -83,6 +91,7 @@ export default function DriverPage() {
 
       {showForm && <DriverForm existing={editing} onClose={() => setShowForm(false)} />}
       {showImport && <DriverImportModal onClose={() => setShowImport(false)} />}
+      {showExport && <ExportModal onClose={() => setShowExport(false)} />}
     </div>
   );
 }
